@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility classes */
+@layer components {
+  .container-md {
+    @apply max-w-4xl mx-auto px-6;
+  }
+
+  .section-py {
+    @apply py-12 md:py-20;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-harvest-700 to-harvest-600 text-white rounded-lg hover:from-harvest-800 hover:to-harvest-700 transition-all duration-200 font-medium;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 border border-harvest-700 text-harvest-700 rounded-lg hover:bg-harvest-50 transition-all duration-200 font-medium;
+  }
+
+  .card {
+    @apply bg-harvest-50 rounded-lg p-6 border border-harvest-100 hover:border-harvest-300 transition-colors;
+  }
+
+  .heading-1 {
+    @apply text-3xl md:text-5xl font-bold text-harvest-900;
+  }
+
+  .heading-2 {
+    @apply text-2xl md:text-4xl font-bold text-harvest-900;
+  }
+
+  .heading-3 {
+    @apply text-xl md:text-2xl font-bold text-harvest-900;
+  }
+
+  .text-muted {
+    @apply text-harvest-600;
+  }
+}
