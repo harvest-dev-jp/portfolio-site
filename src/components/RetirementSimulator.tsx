@@ -47,7 +47,7 @@ const defaultParams: SimulatorParams = {
   pensionStartAge: 65,
   pensionAnnualAmount: 1500000,
   pensionInflationLinked: false,
-  mode: "monteCarlo",
+  mode: "deterministic",
   monteCarloRuns: 300,
 };
 
@@ -161,11 +161,9 @@ function calcChartResult(params: SimulatorParams): ChartResult {
     Math.pow(1 + params.inflationRate / 100, params.lifeExpectancy - params.currentAge).toFixed(2),
   );
 
-  const maxValue = Math.max(
-    ...deterministic,
-    ...p80,
-    1000000,
-  );
+  // Y軸の上限を運用資産額の最大値の10%増しにする
+  const maxValueBase = Math.max(...deterministic, 1000000);
+  const maxValue = Math.ceil(maxValueBase * 1.1);
 
   return {
     years,
@@ -191,6 +189,21 @@ function formatYen(value: number) {
   });
 }
 
+function formatManYen(value: number) {
+  const man = Math.round(value / 10000);
+  return `${man.toLocaleString("ja-JP")}万円`;
+}
+
+function formatNumberWithCommas(value: number) {
+  return value.toLocaleString("ja-JP");
+}
+
+function parseInputNumber(input: string, fallback = 0) {
+  const cleaned = String(input).replace(/[^0-9.-]/g, "");
+  const n = Number(cleaned);
+  return Number.isNaN(n) || cleaned === "" ? fallback : n;
+}
+
 function formatPercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
 }
@@ -200,9 +213,19 @@ export default function RetirementSimulator() {
   const [executedParams, setExecutedParams] = useState<SimulatorParams>(defaultParams);
   const [shareUrl, setShareUrl] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>(
-    "モンテカルロモードでは「シミュレーション実行」ボタンで計算を更新します。",
+    "入力値を変更するたびにリアルタイムで再計算されます。",
   );
-  const [chartType, setChartType] = useState<"line" | "bar">("line");
+  const [chartType, setChartType] = useState<"line" | "bar">("bar");
+  
+  // ローカル入力状態（入力中の中間状態を許可）
+  const [currentAgeInput, setCurrentAgeInput] = useState<string>(String(params.currentAge));
+  const [retireAgeInput, setRetireAgeInput] = useState<string>(String(params.retireAge));
+  const [lifeExpectancyInput, setLifeExpectancyInput] = useState<string>(String(params.lifeExpectancy));
+  const [currentAssetsInput, setCurrentAssetsInput] = useState<string>(formatNumberWithCommas(params.currentAssets));
+  const [annualContributionInput, setAnnualContributionInput] = useState<string>(formatNumberWithCommas(params.annualContribution));
+  const [annualExpensesInput, setAnnualExpensesInput] = useState<string>(formatNumberWithCommas(params.annualExpenses));
+  const [pensionStartAgeInput, setPensionStartAgeInput] = useState<string>(String(params.pensionStartAge));
+  const [pensionAnnualAmountInput, setPensionAnnualAmountInput] = useState<string>(formatNumberWithCommas(params.pensionAnnualAmount));
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -245,7 +268,7 @@ export default function RetirementSimulator() {
   const displayValues =
     params.mode === "deterministic" ? chartResult.deterministic : chartResult.p50;
   const displayLabel =
-    params.mode === "deterministic" ? "決定論的資産額" : "中央値（50％）";
+    params.mode === "deterministic" ? "固定リターン資産額" : "中央値（50％）";
 
   const handleRun = () => {
     setExecutedParams(params);
@@ -300,7 +323,7 @@ export default function RetirementSimulator() {
 
   return (
     <section className="container-md section-py">
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_1.4fr]">
+      <div className="grid gap-10 grid-cols-1">
         <div>
           <div className="card mb-6">
             <h2 className="heading-2 mb-4">動的リタイアメント・シミュレーター</h2>
@@ -313,15 +336,27 @@ export default function RetirementSimulator() {
                   現在年齢
                   <input
                     type="number"
-                    value={params.currentAge}
-                    min={20}
-                    max={60}
-                    onChange={(e) =>
+                    value={currentAgeInput}
+                    step={1}
+                    onChange={(e) => {
+                      setCurrentAgeInput(e.target.value);
+                      const numVal = Number(e.target.value);
+                      if (!Number.isNaN(numVal)) {
+                        setParams((prev) => ({
+                          ...prev,
+                          currentAge: numVal,
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(currentAgeInput) || params.currentAge;
+                      const clamped = clamp(numVal, 20, 60);
+                      setCurrentAgeInput(String(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        currentAge: clamp(Number(e.target.value), 20, 60),
-                      }))
-                    }
+                        currentAge: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
@@ -329,15 +364,27 @@ export default function RetirementSimulator() {
                   リタイア予定年齢
                   <input
                     type="number"
-                    value={params.retireAge}
-                    min={params.currentAge + 1}
-                    max={75}
-                    onChange={(e) =>
+                    value={retireAgeInput}
+                    step={1}
+                    onChange={(e) => {
+                      setRetireAgeInput(e.target.value);
+                      const numVal = Number(e.target.value);
+                      if (!Number.isNaN(numVal)) {
+                        setParams((prev) => ({
+                          ...prev,
+                          retireAge: numVal,
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(retireAgeInput) || params.retireAge;
+                      const clamped = clamp(numVal, params.currentAge + 1, 75);
+                      setRetireAgeInput(String(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        retireAge: clamp(Number(e.target.value), prev.currentAge + 1, 75),
-                      }))
-                    }
+                        retireAge: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
@@ -348,31 +395,56 @@ export default function RetirementSimulator() {
                   想定寿命
                   <input
                     type="number"
-                    value={params.lifeExpectancy}
-                    min={params.retireAge + 5}
-                    max={110}
-                    onChange={(e) =>
+                    value={lifeExpectancyInput}
+                    step={1}
+                    onChange={(e) => {
+                      setLifeExpectancyInput(e.target.value);
+                      const numVal = Number(e.target.value);
+                      if (!Number.isNaN(numVal)) {
+                        setParams((prev) => ({
+                          ...prev,
+                          lifeExpectancy: numVal,
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(lifeExpectancyInput) || params.lifeExpectancy;
+                      const clamped = clamp(numVal, params.retireAge + 5, 110);
+                      setLifeExpectancyInput(String(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        lifeExpectancy: clamp(Number(e.target.value), prev.retireAge + 5, 110),
-                      }))
-                    }
+                        lifeExpectancy: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
                 <label className="block text-sm font-medium text-harvest-700">
                   現在の運用資産額
                   <input
-                    type="number"
-                    value={params.currentAssets}
-                    step={100000}
-                    min={0}
-                    onChange={(e) =>
+                    type="text"
+                    inputMode="numeric"
+                    value={currentAssetsInput}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      const formatted = val ? formatNumberWithCommas(Number(val)) : "";
+                      setCurrentAssetsInput(formatted);
+                      if (val !== "") {
+                        setParams((prev) => ({
+                          ...prev,
+                          currentAssets: Number(val),
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(currentAssetsInput.replace(/[^0-9]/g, "")) || params.currentAssets;
+                      const clamped = clamp(numVal, 0, 999999999);
+                      setCurrentAssetsInput(formatNumberWithCommas(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        currentAssets: clamp(Number(e.target.value), 0, 999999999),
-                      }))
-                    }
+                        currentAssets: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
@@ -382,32 +454,58 @@ export default function RetirementSimulator() {
                 <label className="block text-sm font-medium text-harvest-700">
                   年間積立額
                   <input
-                    type="number"
-                    value={params.annualContribution}
-                    step={100000}
-                    min={0}
-                    onChange={(e) =>
+                    type="text"
+                    inputMode="numeric"
+                    value={annualContributionInput}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      const formatted = val ? formatNumberWithCommas(Number(val)) : "";
+                      setAnnualContributionInput(formatted);
+                      if (val !== "") {
+                        setParams((prev) => ({
+                          ...prev,
+                          annualContribution: Number(val),
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(annualContributionInput.replace(/[^0-9]/g, "")) || params.annualContribution;
+                      const clamped = clamp(numVal, 0, 99999999);
+                      setAnnualContributionInput(formatNumberWithCommas(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        annualContribution: clamp(Number(e.target.value), 0, 99999999),
-                      }))
-                    }
+                        annualContribution: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
                 <label className="block text-sm font-medium text-harvest-700">
                   年間想定生活費
                   <input
-                    type="number"
-                    value={params.annualExpenses}
-                    step={100000}
-                    min={0}
-                    onChange={(e) =>
+                    type="text"
+                    inputMode="numeric"
+                    value={annualExpensesInput}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      const formatted = val ? formatNumberWithCommas(Number(val)) : "";
+                      setAnnualExpensesInput(formatted);
+                      if (val !== "") {
+                        setParams((prev) => ({
+                          ...prev,
+                          annualExpenses: Number(val),
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      const numVal = Number(annualExpensesInput.replace(/[^0-9]/g, "")) || params.annualExpenses;
+                      const clamped = clamp(numVal, 0, 99999999);
+                      setAnnualExpensesInput(formatNumberWithCommas(clamped));
                       setParams((prev) => ({
                         ...prev,
-                        annualExpenses: clamp(Number(e.target.value), 0, 99999999),
-                      }))
-                    }
+                        annualExpenses: clamped,
+                      }));
+                    }}
                     className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                   />
                 </label>
@@ -473,31 +571,56 @@ export default function RetirementSimulator() {
                     年金受給開始年齢
                     <input
                       type="number"
-                      value={params.pensionStartAge}
-                      min={params.retireAge}
-                      max={80}
-                      onChange={(e) =>
+                      value={pensionStartAgeInput}
+                      step={1}
+                      onChange={(e) => {
+                        setPensionStartAgeInput(e.target.value);
+                        const numVal = Number(e.target.value);
+                        if (!Number.isNaN(numVal)) {
+                          setParams((prev) => ({
+                            ...prev,
+                            pensionStartAge: numVal,
+                          }));
+                        }
+                      }}
+                      onBlur={() => {
+                        const numVal = Number(pensionStartAgeInput) || params.pensionStartAge;
+                        const clamped = clamp(numVal, params.retireAge, 80);
+                        setPensionStartAgeInput(String(clamped));
                         setParams((prev) => ({
                           ...prev,
-                          pensionStartAge: clamp(Number(e.target.value), prev.retireAge, 80),
-                        }))
-                      }
+                          pensionStartAge: clamped,
+                        }));
+                      }}
                       className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                     />
                   </label>
                   <label className="block text-sm font-medium text-harvest-700">
                     年間想定年金額
                     <input
-                      type="number"
-                      value={params.pensionAnnualAmount}
-                      step={100000}
-                      min={0}
-                      onChange={(e) =>
+                      type="text"
+                      inputMode="numeric"
+                      value={pensionAnnualAmountInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, "");
+                        const formatted = val ? formatNumberWithCommas(Number(val)) : "";
+                        setPensionAnnualAmountInput(formatted);
+                        if (val !== "") {
+                          setParams((prev) => ({
+                            ...prev,
+                            pensionAnnualAmount: Number(val),
+                          }));
+                        }
+                      }}
+                      onBlur={() => {
+                        const numVal = Number(pensionAnnualAmountInput.replace(/[^0-9]/g, "")) || params.pensionAnnualAmount;
+                        const clamped = clamp(numVal, 0, 99999999);
+                        setPensionAnnualAmountInput(formatNumberWithCommas(clamped));
                         setParams((prev) => ({
                           ...prev,
-                          pensionAnnualAmount: clamp(Number(e.target.value), 0, 99999999),
-                        }))
-                      }
+                          pensionAnnualAmount: clamped,
+                        }));
+                      }}
                       className="mt-2 w-full rounded-lg border border-harvest-200 px-3 py-2"
                     />
                   </label>
@@ -531,7 +654,7 @@ export default function RetirementSimulator() {
                   }
                   className="mt-2 w-full rounded-lg border border-harvest-200 bg-white px-3 py-2"
                 >
-                  <option value="deterministic">決定論的モード</option>
+                  <option value="deterministic">固定リターン</option>
                   <option value="monteCarlo">モンテカルロモード</option>
                 </select>
               </label>
@@ -635,6 +758,35 @@ export default function RetirementSimulator() {
                   </linearGradient>
                 </defs>
                 <g>
+                  {/* 運用資産額の最大値に点線参考線を表示 */}
+                  {displayValues.length > 0 && (
+                    (() => {
+                      const maxDataValue = Math.max(...displayValues);
+                      const maxDataY = margin.top + innerHeight - maxDataValue * yScale;
+                      return (
+                        <g>
+                          <line
+                            x1={margin.left}
+                            x2={width - margin.right}
+                            y1={maxDataY}
+                            y2={maxDataY}
+                            stroke="#999"
+                            strokeDasharray="4,4"
+                            opacity="0.6"
+                          />
+                          <text
+                            x={margin.left - 8}
+                            y={maxDataY - 4}
+                            textAnchor="end"
+                            fontSize="12"
+                            fill="#999"
+                          >
+                            {formatManYen(maxDataValue)}
+                          </text>
+                        </g>
+                      );
+                    })()
+                  )}
                   {[0, 1, 2, 3, 4].map((index) => {
                     const y = margin.top + (innerHeight / 4) * index;
                     const value = Math.round(maxValue - (maxValue / 4) * index);
@@ -642,7 +794,7 @@ export default function RetirementSimulator() {
                       <g key={index}>
                         <line x1={margin.left} x2={width - margin.right} y1={y} y2={y} stroke="#efefef" />
                         <text x={margin.left - 8} y={y + 4} textAnchor="end" fontSize="12" fill="#6b7082">
-                          {formatYen(value)}
+                          {formatManYen(value)}
                         </text>
                       </g>
                     );
@@ -701,32 +853,23 @@ export default function RetirementSimulator() {
                     </tr>
                   </thead>
                   <tbody>
-                    {years.map((year, index) => (
-                      <tr key={year} className={index % 2 === 0 ? "bg-white" : "bg-harvest-50"}>
-                        <td className="px-4 py-3 text-harvest-700">{year}歳</td>
-                        <td className="px-4 py-3 text-harvest-900">{formatYen(displayValues[index])}</td>
-                        <td className="px-4 py-3 text-harvest-900">{formatYen(contributionValues[index])}</td>
-                      </tr>
-                    ))}
+                    {years.map((year, index) => {
+                      // 5歳刻みの行のみ表示。ただし最終年は必ず表示
+                      if ((year - years[0]) % 5 !== 0 && index !== years.length - 1) return null;
+                      return (
+                        <tr key={year} className={index % 2 === 0 ? "bg-white" : "bg-harvest-50"}>
+                          <td className="px-4 py-3 text-harvest-700">{year}歳</td>
+                          <td className="px-4 py-3 text-harvest-900">{formatYen(displayValues[index])}</td>
+                          <td className="px-4 py-3 text-harvest-900">{formatYen(contributionValues[index])}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-harvest-50 p-4 text-sm text-harvest-700">
-                <div className="font-semibold text-harvest-900">中央値</div>
-                <div className="mt-2">{formatYen(chartResult.p50[chartResult.p50.length - 1])}</div>
-              </div>
-              <div className="rounded-2xl bg-harvest-50 p-4 text-sm text-harvest-700">
-                <div className="font-semibold text-harvest-900">上位20%</div>
-                <div className="mt-2">{formatYen(chartResult.p80[chartResult.p80.length - 1])}</div>
-              </div>
-              <div className="rounded-2xl bg-harvest-50 p-4 text-sm text-harvest-700">
-                <div className="font-semibold text-harvest-900">下位20%</div>
-                <div className="mt-2">{formatYen(chartResult.p20[chartResult.p20.length - 1])}</div>
-              </div>
-            </div>
+            {/* 統計カードは非表示（要望により削除） */}
           </div>
         </div>
       </div>

@@ -24,45 +24,27 @@ export default function About() {
             </div>
 
             <div>
-              <div className="space-y-6">
+              <div className="space-y-6 bg-white/60 dark:bg-gray-800/60 p-6 rounded-lg shadow-sm">
                 <div>
-                  <h3 className="heading-3 mb-2">名前</h3>
-                  <p className="text-harvest-600">Harvest Developer</p>
+                  <h3 className="heading-3 mb-2">概要</h3>
+                  <p className="text-harvest-600">業務システム開発の実務経験が30年以上あります。要件定義から設計、実装、テスト、リリース、保守運用まで一貫して担当してきました。</p>
                 </div>
 
                 <div>
-                  <h3 className="heading-3 mb-2">専門分野</h3>
-                  <ul className="space-y-2 text-harvest-600">
-                    <li>• 開発経験30年以上</li>
-                    <li>• 業務システム経験</li>
-                    <li>• 設計・保守重視</li>
-                    <li>• AI活用</li>
-                    <li>• 個人開発</li>
+                  <h3 className="heading-3 mb-2">主要経験技術</h3>
+                  <ul className="list-inside list-disc text-harvest-600 space-y-1">
+                    <li>言語: C、VB6、VB.NET</li>
+                    <li>業務システム設計・保守運用の実務経験</li>
+                    <li>現在: AI活用とWeb開発を学習中（実践的な適用を模索しています）</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 className="heading-3 mb-2">使用技術</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "TypeScript",
-                      "React",
-                      "Next.js",
-                      "Tailwind CSS",
-                      "Node.js",
-                      "Python",
-                      "PostgreSQL",
-                      "AWS",
-                      "Docker",
-                      "Git",
-                    ].map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-sm"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                  <h3 className="heading-3 mb-2">保有資格</h3>
+                  <div className="flex flex-wrap gap-2 text-harvest-600">
+                    <span className="px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-sm">プロジェクトマネージャ</span>
+                    <span className="px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-sm">応用情報技術者</span>
+                    <span className="px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-sm">基本情報技術者</span>
                   </div>
                 </div>
               </div>
