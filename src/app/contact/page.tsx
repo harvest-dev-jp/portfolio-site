@@ -6,7 +6,7 @@ export default function Contact() {
         <div className="max-w-3xl">
           <h1 className="heading-1 mb-6">Contact</h1>
           <p className="text-lg text-harvest-600">
-            GitHubまたはメールで気軽にお問い合わせください。
+            GitHub Issueまたはメールで気軽にお問い合わせください。
           </p>
         </div>
       </section>
