@@ -30,10 +30,10 @@ export default function Contact() {
               <div className="text-4xl mb-4">✉</div>
               <h3 className="heading-3 mb-2">メール</h3>
               <a
-                href="mailto:hello@example.com"
+                href="mailto:harvest.dev.jp@gmail.com"
                 className="text-harvest-700 hover:text-harvest-900"
               >
-                hello@example.com
+                harvest.dev.jp@gmail.com
               </a>
             </div>
           </div>
