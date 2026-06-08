@@ -11,7 +11,7 @@ export default function Home() {
               Welcome to <span className="bg-gradient-to-r from-harvest-700 to-harvest-600 bg-clip-text text-transparent">Harvest</span>
             </h1>
             <p className="text-xl text-harvest-600 max-w-2xl leading-relaxed">
-              業務改善とAI活用で、信頼できるシステムを育てる。
+              業務システム開発30年以上の経験を活かし、AIとWeb技術で業務改善を支援します。
             </p>
           </div>
 
