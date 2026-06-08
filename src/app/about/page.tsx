@@ -1,14 +1,86 @@
+import Image from "next/image";
 import Link from "next/link";
 
+<div className="flex flex-col items-center">
+  <Image
+    src="/profile.png"
+    alt="Takeshi Akaguma"
+    width={220}
+    height={220}
+    className="rounded-full shadow-lg border-4 border-harvest-100"
+    priority
+  />
+
+  <h3 className="text-2xl font-bold mt-4">
+    Takeshi Akaguma
+  </h3>
+
+  <p className="text-harvest-600 text-center mt-2">
+    業務システム開発30年以上<br />
+    AI活用・Web開発
+  </p>
+</div>
+
 export default function About() {
+
+  
+
+
   return (
+    
     <div>
+
+      <div className="flex flex-col items-center">
+        <Image
+          src="/profile.png"
+          alt="Takeshi Akaguma"
+          width={220}
+          height={220}
+          className="rounded-full shadow-lg border-4 border-harvest-100"
+          priority
+        />
+
+        <h3 className="text-2xl font-bold mt-4">Takeshi Akaguma</h3>
+        
+        <p className="text-harvest-600 text-center mt-2">
+          業務システム開発30年以上
+          <br />
+          AI活用・Web開発
+        </p>
+            <div className="flex flex-wrap gap-2 justify-center mt-4">
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                Next.js
+              </span>
+
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                TypeScript
+              </span>
+
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                React
+              </span>
+
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                Tailwind CSS
+              </span>
+
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                GitHub
+              </span>
+
+              <span className="px-3 py-1 bg-harvest-100 rounded-full text-sm">
+                ChatGPT
+              </span>
+          </div>
+    </div>
       {/* Hero Section */}
       <section className="container-md section-py">
         <div className="max-w-3xl">
-          <h1 className="heading-1 mb-6">About Harvest</h1>
+          <h1 className="heading-1 mb-6">About Me</h1>
           <p className="text-lg text-harvest-600 mb-8">
-            個人開発エンジニアとして、信頼できるソリューションとAI活用による創新的なプロジェクトを追求しています。
+            30年以上にわたり業務システム開発に従事してきました。
+            <br />
+            現在はAI活用とWeb開発を学びながら、個人開発プロジェクトに取り組んでいます。
           </p>
         </div>
       </section>

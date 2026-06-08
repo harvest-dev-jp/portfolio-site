@@ -1,6 +1,30 @@
 import Link from "next/link";
 
 export default function Home() {
+  const featuredProjects = [
+    {
+      id: 1,
+      title: "Harvest Portfolio Site",
+      description:
+        "Next.js、TypeScript、Tailwind CSSを使用して開発した個人ポートフォリオサイト。",
+      link: "/works",
+    },
+    {
+      id: 2,
+      title: "動的リタイアメント・シミュレーター",
+      description:
+        "投資リターン、インフレ率、年金受給を考慮した資産推移シミュレーション。",
+      link: "/works",
+    },
+    {
+      id: 3,
+      title: "iPhoneアプリ開発",
+      description:
+        "SwiftとAI活用技術を学習しながら開発予定の個人向けアプリ。",
+      link: "/works",
+    },
+  ];
+
   return (
     <div>
       {/* Hero Section */}
@@ -8,7 +32,10 @@ export default function Home() {
         <div className="min-h-screen flex flex-col justify-center items-start gap-8">
           <div className="space-y-4">
             <h1 className="heading-1">
-              Welcome to <span className="bg-gradient-to-r from-harvest-700 to-harvest-600 bg-clip-text text-transparent">Harvest</span>
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-harvest-700 to-harvest-600 bg-clip-text text-transparent">
+                Harvest
+              </span>
             </h1>
             <p className="text-xl text-harvest-600 max-w-2xl leading-relaxed">
               業務システム開発30年以上の経験を活かし、AIとWeb技術で業務改善を支援します。
@@ -60,18 +87,21 @@ export default function Home() {
           <h2 className="heading-2 mb-12 text-center">最近のプロジェクト</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Work Card Template */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card group hover:shadow-lg transition-shadow">
+            {featuredProjects.map((project) => (
+              <div
+                key={project.id}
+                className="card group hover:shadow-lg transition-shadow"
+              >
                 <div className="h-40 bg-gradient-to-br from-harvest-700 to-harvest-600 rounded mb-4 flex items-center justify-center text-white text-4xl">
-                  <span className="text-white/30">#{i}</span>
+                  <span className="text-white/30">#{project.id}</span>
                 </div>
-                <h3 className="heading-3 mb-2">プロジェクト{i}</h3>
-                <p className="text-harvest-600 mb-4">
-                  プロジェクトの説明がここに入ります。
-                </p>
+
+                <h3 className="heading-3 mb-2">{project.title}</h3>
+
+                <p className="text-harvest-600 mb-4">{project.description}</p>
+
                 <Link
-                  href="/works"
+                  href={project.link}
                   className="text-harvest-700 hover:text-harvest-900 font-medium"
                 >
                   詳細を見る →

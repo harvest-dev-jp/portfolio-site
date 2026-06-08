@@ -74,7 +74,7 @@ export default function Footer() {
                   href="#"
                   className="hover:text-white transition-colors"
                 >
-                  Twitter
+                  GitHub
                 </a>
               </li>
             </ul>

@@ -1,32 +1,45 @@
 import Link from "next/link";
 
 export default function Works() {
-const projects = [
-{
-id: 1,
-title: "Harvest Portfolio Site",
-description:
-"Next.js、TypeScript、Tailwind CSSを使用して開発した個人ポートフォリオサイト。レスポンシブ対応を行い、開発実績やスキル、活動内容を紹介しています。",
-technologies: ["Next.js", "TypeScript", "Tailwind CSS", "GitHub"],
-link: "https://github.com/harvest-dev-jp/portfolio-site",
-},
-{
-id: 2,
-title: "動的リタイアメント・シミュレーター",
-description:
-"投資リターン、インフレ率、年金受給を考慮し、月次単位で資産推移を計算するWebアプリケーション。React、TypeScript、Rechartsを利用して開発中。",
-technologies: ["React", "TypeScript", "Recharts"],
-link: "#",
-},
-{
-id: 3,
-title: "iPhoneアプリ開発（準備中）",
-description:
-"SwiftおよびAI活用技術を学習しながら、個人向けの実用アプリ開発を計画中。今後公開予定のプロジェクトです。",
-technologies: ["Swift", "iOS", "AI"],
-link: "#",
-},
-];
+  const projects = [
+    {
+      id: 1,
+      icon: "🌾",
+      status: "公開中",
+      title: "Harvest Portfolio Site",
+      description:
+        "Next.js、TypeScript、Tailwind CSSを使用して開発した個人ポートフォリオサイト。レスポンシブ対応を行い、開発実績やスキル、活動内容を紹介しています。",
+      technologies: ["Next.js", "TypeScript", "Tailwind CSS", "GitHub"],
+      link: "https://github.com/harvest-dev-jp/portfolio-site",
+      linkLabel: "GitHubを見る →",
+      external: true,
+    },
+    {
+      id: 2,
+      icon: "📈",
+      status: "開発中",
+      title: "動的リタイアメント・シミュレーター",
+      description:
+        "投資リターン、インフレ率、年金受給を考慮し、月次単位で資産推移を計算するWebアプリケーション。React、TypeScript、Rechartsを利用して開発中。",
+      technologies: ["React", "TypeScript", "Recharts"],
+      link: "/works/featured",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
+    {
+      id: 3,
+      icon: "📱",
+      status: "準備中",
+      title: "iPhoneアプリ開発（準備中）",
+      description:
+        "SwiftおよびAI活用技術を学習しながら、個人向けの実用アプリ開発を計画中。今後公開予定のプロジェクトです。",
+      technologies: ["Swift", "iOS", "AI"],
+      link: "",
+      linkLabel: "準備中",
+      external: false,
+    },
+  ];
+
 
 
   return (
@@ -47,9 +60,17 @@ link: "#",
           {projects.map((project) => (
             <div key={project.id} className="card group hover:shadow-lg transition-all">
               <div className="h-48 bg-gradient-to-br from-harvest-700 to-harvest-600 rounded-lg mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
-                <span className="text-white/30 text-6xl font-bold">{project.id}</span>
+                <div className="h-48 bg-gradient-to-br from-harvest-50 to-harvest-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                  <div className="w-28 h-28 rounded-full bg-white shadow-md border border-harvest-200 flex items-center justify-center">
+                    <span className="text-6xl" aria-hidden="true">
+                      {project.icon}
+                    </span>
+                  </div>
+                </div>
               </div>
-
+              <span className="inline-block mb-3 px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-xs">
+              {project.status}
+            </span>
               <h3 className="heading-3 mb-2">{project.title}</h3>
               <p className="text-harvest-600 mb-4">{project.description}</p>
 
@@ -61,9 +82,29 @@ link: "#",
                 ))}
               </div>
 
-              <a href={project.link} className="inline-block text-harvest-700 hover:text-harvest-900 font-medium group-hover:underline">
-                詳細を見る →
-              </a>
+              {project.link ? (
+                project.external ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-harvest-700 hover:text-harvest-900 font-medium group-hover:underline"
+                  >
+                    {project.linkLabel}
+                  </a>
+                ) : (
+                  <Link
+                    href={project.link}
+                    className="inline-block text-harvest-700 hover:text-harvest-900 font-medium group-hover:underline"
+                  >
+                    {project.linkLabel}
+                  </Link>
+                )
+              ) : (
+                <span className="inline-block text-harvest-400 font-medium">
+                  {project.linkLabel}
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -88,7 +129,8 @@ link: "#",
               <div className="mt-3 text-2xl font-semibold text-harvest-900">金融シミュレーション</div>
               <div className="mt-4 grid gap-3 text-sm text-harvest-600">
                 <div>Next.js / TypeScript</div>
-                <div>モンテカルロシミュレーション</div>
+                <div>月次資産推移シミュレーション</div>
+                <div>インフレ・年金反映</div>
                 <div>データ可視化</div>
               </div>
             </div>
@@ -101,16 +143,16 @@ link: "#",
         <div className="container-md">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold mb-2 text-harvest-400">30+</div>
-              <p className="text-harvest-200">導入プロジェクト</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2 text-harvest-400">20+</div>
-              <p className="text-harvest-200">業務改善実績</p>
-            </div>
-            <div>
               <div className="text-4xl font-bold mb-2 text-harvest-400">30年+</div>
-              <p className="text-harvest-200">開発経験</p>
+              <p className="text-harvest-200">業務システム開発経験</p>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2 text-harvest-400">AI</div>
+              <p className="text-harvest-200">Web開発学習中</p>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2 text-harvest-400">3</div>
+              <p className="text-harvest-200">個人開発プロジェクト</p>
             </div>
           </div>
         </div>
