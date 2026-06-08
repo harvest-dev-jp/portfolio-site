@@ -1,29 +1,33 @@
 import Link from "next/link";
 
 export default function Works() {
-  const projects = [
-    {
-      id: 1,
-      title: "業務改善ダッシュボード",
-      description: "既存業務フローを可視化し、AI予測と自動化で作業効率を向上させたダッシュボードシステム。",
-      technologies: ["Next.js", "TypeScript", "Python", "AI"],
-      link: "#",
-    },
-    {
-      id: 2,
-      title: "AIチャット窓口システム",
-      description: "問い合わせ受付と分類をAIで支援し、迅速な対応と業務負荷の削減を実現した社内向けサービス。",
-      technologies: ["React", "Node.js", "OpenAI API", "AWS"],
-      link: "#",
-    },
-    {
-      id: 3,
-      title: "保守重視の基幹システム",
-      description: "長期運用を見据えた設計と保守性に重点を置いた、業務システムの基幹プラットフォーム。",
-      technologies: ["NestJS", "PostgreSQL", "Docker"],
-      link: "#",
-    },
-  ];
+const projects = [
+{
+id: 1,
+title: "Harvest Portfolio Site",
+description:
+"Next.js、TypeScript、Tailwind CSSを使用して開発した個人ポートフォリオサイト。レスポンシブ対応を行い、開発実績やスキル、活動内容を紹介しています。",
+technologies: ["Next.js", "TypeScript", "Tailwind CSS", "GitHub"],
+link: "https://github.com/harvest-dev-jp/portfolio-site",
+},
+{
+id: 2,
+title: "動的リタイアメント・シミュレーター",
+description:
+"投資リターン、インフレ率、年金受給を考慮し、月次単位で資産推移を計算するWebアプリケーション。React、TypeScript、Rechartsを利用して開発中。",
+technologies: ["React", "TypeScript", "Recharts"],
+link: "#",
+},
+{
+id: 3,
+title: "iPhoneアプリ開発（準備中）",
+description:
+"SwiftおよびAI活用技術を学習しながら、個人向けの実用アプリ開発を計画中。今後公開予定のプロジェクトです。",
+technologies: ["Swift", "iOS", "AI"],
+link: "#",
+},
+];
+
 
   return (
     <div>
