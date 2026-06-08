@@ -92,32 +92,41 @@ export default function About() {
       <section className="bg-harvest-50 section-py">
         <div className="container-md">
           <h2 className="heading-2 mb-12">経歴</h2>
-
           <div className="space-y-6">
-            {[
-              {
-                year: "2024年",
-                title: "独立エンジニア活動開始",
-                description: "個人開発エンジニアとして本格的に活動を開始",
-              },
-              {
-                year: "2023年",
-                title: "AI技術の深化",
-                description: "機械学習とLLMの実装経験を積む",
-              },
-              {
-                year: "2022年",
-                title: "フルスタック開発の実践",
-                description: "複数のプロジェクトでフルスタック開発を実施",
-              },
-            ].map((item, index) => (
-              <div key={index} className="card">
-                <h3 className="text-harvest-700 font-semibold mb-1">{item.year}</h3>
-                <h4 className="heading-3 mb-2">{item.title}</h4>
-                <p className="text-harvest-600">{item.description}</p>
-              </div>
-            ))}
-          </div>
+  {[
+    {
+      year: "1990年代〜",
+      title: "業務システム開発のキャリア開始",
+      description:
+        "C言語、VBを中心に業務システムの設計・開発・保守に従事。要件定義から運用まで幅広い工程を経験。",
+    },
+    {
+      year: "2000年代〜2010年代",
+      title: "プロジェクト推進とマネジメント",
+      description:
+        "基幹システムや業務改善プロジェクトに参画。プロジェクト管理、品質向上、運用改善を担当。",
+    },
+    {
+      year: "2025年〜",
+      title: "AI活用と個人開発への挑戦",
+      description:
+        "ChatGPTや生成AIを活用した開発を開始。Web技術、GitHub、クラウド環境を学びながら個人開発を推進。",
+    },
+    {
+      year: "2026年〜",
+      title: "Harvest Portfolio公開",
+      description:
+        "Next.js、TypeScript、Tailwind CSSを用いたポートフォリオサイトとリタイアメント・シミュレーターを開発。",
+    },
+  ].map((item, index) => (
+    <div key={index} className="card">
+      <h3 className="text-harvest-700 font-semibold mb-1">{item.year}</h3>
+      <h4 className="heading-3 mb-2">{item.title}</h4>
+      <p className="text-harvest-600">{item.description}</p>
+    </div>
+  ))}
+</div>
+
         </div>
       </section>
 
