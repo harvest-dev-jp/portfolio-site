@@ -44,7 +44,13 @@ const clamp = (value: number, min: number, max: number) => {
 };
 
 const parseManYen = (value: string, min: number, max: number) => {
-  const normalized = value.replace(/,/g, "").trim();
+  const normalized = value
+    .replace(/[０-９]/g, (char) =>
+      String.fromCharCode(char.charCodeAt(0) - 0xfee0)
+    )
+    .replace(/,/g, "")
+    .replace(/[^\d]/g, "");
+
   const parsed = Number(normalized);
 
   if (Number.isNaN(parsed)) return min;
@@ -54,6 +60,10 @@ const parseManYen = (value: string, min: number, max: number) => {
 
 const formatManYen = (value: number) => {
   return Math.round(value).toLocaleString();
+};
+
+const formatInputNumber = (value: number) => {
+  return value.toLocaleString();
 };
 
 const createRange = (start: number, end: number, step = 1) => {
@@ -167,7 +177,7 @@ export default function RetirementSimulator() {
   const [lifeExpectancy, setLifeExpectancy] = useState(90);
   const [pensionStartAge, setPensionStartAge] = useState(65);
 
-  const [currentAssetsText, setCurrentAssetsText] = useState("6000");
+  const [currentAssetsText, setCurrentAssetsText] = useState("6,000");
   const [annualSavingsText, setAnnualSavingsText] = useState("120");
   const [annualLivingCostText, setAnnualLivingCostText] = useState("430");
   const [annualPensionText, setAnnualPensionText] = useState("264");
@@ -264,7 +274,7 @@ export default function RetirementSimulator() {
             onBlur={() => {
               const value = parseManYen(currentAssetsText, 0, 50000);
               setCurrentAssets(value);
-              setCurrentAssetsText(String(value));
+              setCurrentAssetsText(formatInputNumber(value));
             }}
           />
 
@@ -276,7 +286,7 @@ export default function RetirementSimulator() {
             onBlur={() => {
               const value = parseManYen(annualSavingsText, 0, 1000);
               setAnnualSavings(value);
-              setAnnualSavingsText(String(value));
+              setAnnualSavingsText(formatInputNumber(value));
             }}
           />
 
@@ -288,7 +298,7 @@ export default function RetirementSimulator() {
             onBlur={() => {
               const value = parseManYen(annualLivingCostText, 0, 2000);
               setAnnualLivingCost(value);
-              setAnnualLivingCostText(String(value));
+              setAnnualLivingCostText(formatInputNumber(value));
             }}
           />
 
@@ -308,7 +318,7 @@ export default function RetirementSimulator() {
             onBlur={() => {
               const value = parseManYen(annualPensionText, 0, 500);
               setAnnualPension(value);
-              setAnnualPensionText(String(value));
+              setAnnualPensionText(formatInputNumber(value));
             }}
           />
 
@@ -459,16 +469,10 @@ function MoneyInput({
           type="text"
           inputMode="numeric"
           autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
           value={value}
-          onChange={(event) => {
-            const normalized = event.target.value
-              .replace(/[０-９]/g, (char) =>
-                String.fromCharCode(char.charCodeAt(0) - 0xFEE0)
-              )
-              .replace(/[^\d]/g, "");
-
-            onChange(normalized);
-          }}
+          onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
           className="w-full rounded-lg border border-gray-300 px-3 py-3 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
