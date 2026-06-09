@@ -9,7 +9,7 @@ export default function FeaturedWorkPage() {
           <p className="text-sm uppercase tracking-[0.28em] text-harvest-700 mb-3">Featured Project</p>
           <h1 className="heading-1 mb-6">リタイアメント・シミュレーター</h1>
           <p className="text-lg text-harvest-600 mb-8">
-            資産形成から引退後のキャッシュフローまでを見通すシミュレーションアプリ。モンテカルロ分析により不確実性を可視化し、最適な運用戦略を支援します。
+            資産形成から引退後のキャッシュフローまでを見通すシミュレーションアプリ。
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <Link href="/works" className="btn-secondary inline-flex items-center justify-center">
@@ -26,16 +26,18 @@ export default function FeaturedWorkPage() {
         <div className="rounded-3xl border border-harvest-200 bg-harvest-50 p-6 shadow-sm">
           <h2 className="heading-2 mb-4">プロジェクト概要</h2>
           <p className="text-harvest-600 leading-relaxed mb-6">
-            このプロジェクトは、退職後のリタイアメント資産寿命を分析するインタラクティブなシミュレーターです。ユーザーの年齢、資産、収支、予想リターンを調整し、複数のシナリオを比較できます。
+            このプロジェクトは、リタイア後の資産寿命を予測するためのシミュレーターです。
+            現在資産、生活費、年金、投資リターン、インフレ率などの条件を設定し、将来の資産推移を1か月単位で試算できます。
+            想定寿命時点の資産残高を確認することで、生活費や積立額の見直しに役立てることができます。
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 border border-harvest-200">
               <h3 className="heading-3 mb-2">主な特徴</h3>
               <ul className="list-disc list-inside text-harvest-600 space-y-2">
-                <li>モンテカルロシミュレーションによる不確実性分析</li>
-                <li>引退年齢と生活費の変化を入力可能</li>
-                <li>年金受取とインフレ影響の自動計算</li>
-                <li>結果を即座にグラフで可視化</li>
+                <li>1か月単位の資産推移シミュレーション</li>
+                <li>リタイア年齢・寿命・年金条件を自由に設定</li>
+                <li>インフレを考慮した生活費シミュレーション</li>
+                <li>資産寿命をグラフで可視化</li>
               </ul>
             </div>
             <div className="rounded-3xl bg-white p-5 border border-harvest-200">
