@@ -90,6 +90,33 @@ function simulateRetirement(input: SimulationInput): SimulationResult {
     inflationRate,
   } = input;
 
+function createResultMessage(
+  lifeExpectancy: number,
+  depletionAge: number | null,
+  assetsAtLifeExpectancy: number,
+  assetsAtPlus10: number
+) {
+  if (depletionAge === null) {
+    return `想定寿命${lifeExpectancy}歳を超えても、資産は枯渇しない見込みです。長寿リスクに対して比較的余裕のある計画です。`;
+  }
+
+  if (depletionAge <= lifeExpectancy) {
+    return `想定寿命${lifeExpectancy}歳より前の${depletionAge}歳で資産が枯渇する見込みです。生活費の見直し、積立額の増加、リタイア年齢の再検討が必要です。`;
+  }
+
+  if (assetsAtPlus10 <= 0) {
+    return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
+      assetsAtLifeExpectancy
+    )}万円の資産が残る見込みです。ただし${depletionAge}歳で資産が枯渇するため、長寿リスクに備える場合は生活費の見直しが有効です。`;
+  }
+
+  return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
+    assetsAtLifeExpectancy
+  )}万円、${lifeExpectancy + 10}歳時点でも${formatManYen(
+    assetsAtPlus10
+  )}万円の資産が残る見込みです。比較的安定した計画です。`;
+}
+
   const monthlyReturnRate = annualReturnRate / 12 / 100;
   const annualInflationRate = inflationRate / 100;
 
@@ -225,6 +252,20 @@ export default function RetirementSimulator() {
     annualReturnRate,
     inflationRate,
   ]);
+
+const resultMessage = useMemo(() => {
+  return createResultMessage(
+    lifeExpectancy,
+    result.depletionAge,
+    result.assetsAtLifeExpectancy,
+    result.assetsAtPlus10
+  );
+}, [
+  lifeExpectancy,
+  result.depletionAge,
+  result.assetsAtLifeExpectancy,
+  result.assetsAtPlus10,
+]);
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
