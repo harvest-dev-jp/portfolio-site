@@ -62,6 +62,25 @@ const formatManYen = (value: number) => {
   return Math.round(value).toLocaleString();
 };
 
+function getStatusColor(
+  depletionAge: number | null,
+  lifeExpectancy: number
+) {
+  if (depletionAge === null) {
+    return "success";
+  }
+
+  if (depletionAge >= lifeExpectancy + 10) {
+    return "success";
+  }
+
+  if (depletionAge >= lifeExpectancy) {
+    return "warning";
+  }
+
+  return "danger";
+}
+
 const formatInputNumber = (value: number) => {
   return value.toLocaleString();
 };
@@ -89,33 +108,6 @@ function simulateRetirement(input: SimulationInput): SimulationResult {
     annualReturnRate,
     inflationRate,
   } = input;
-
-function createResultMessage(
-  lifeExpectancy: number,
-  depletionAge: number | null,
-  assetsAtLifeExpectancy: number,
-  assetsAtPlus10: number
-) {
-  if (depletionAge === null) {
-    return `想定寿命${lifeExpectancy}歳を超えても、資産は枯渇しない見込みです。長寿リスクに対して比較的余裕のある計画です。`;
-  }
-
-  if (depletionAge <= lifeExpectancy) {
-    return `想定寿命${lifeExpectancy}歳より前の${depletionAge}歳で資産が枯渇する見込みです。生活費の見直し、積立額の増加、リタイア年齢の再検討が必要です。`;
-  }
-
-  if (assetsAtPlus10 <= 0) {
-    return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
-      assetsAtLifeExpectancy
-    )}万円の資産が残る見込みです。ただし${depletionAge}歳で資産が枯渇するため、長寿リスクに備える場合は生活費の見直しが有効です。`;
-  }
-
-  return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
-    assetsAtLifeExpectancy
-  )}万円、${lifeExpectancy + 10}歳時点でも${formatManYen(
-    assetsAtPlus10
-  )}万円の資産が残る見込みです。比較的安定した計画です。`;
-}
 
   const monthlyReturnRate = annualReturnRate / 12 / 100;
   const annualInflationRate = inflationRate / 100;
@@ -198,6 +190,78 @@ function createResultMessage(
   };
 }
 
+type LivingCostSuggestion = {
+  recommendedLivingCost: number;
+  reductionAmount: number;
+  isAlreadySafe: boolean;
+};
+
+function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion {
+  console.log("input", input);
+  const currentResult = simulateRetirement(input);
+  console.log("currentResult", currentResult);
+  
+
+  if (currentResult.depletionAge === null) {
+    return {
+      recommendedLivingCost: input.annualLivingCost,
+      reductionAmount: 0,
+      isAlreadySafe: true,
+    };
+  }
+
+  for (
+    let livingCost = input.annualLivingCost;
+    livingCost >= 0;
+    livingCost -= 10
+  ) {
+    const result = simulateRetirement({
+      ...input,
+      annualLivingCost: livingCost,
+    });
+
+    if (result.depletionAge === null) {
+      return {
+        recommendedLivingCost: livingCost,
+        reductionAmount: input.annualLivingCost - livingCost,
+        isAlreadySafe: false,
+      };
+    }
+  }
+
+  return {
+    recommendedLivingCost: 0,
+    reductionAmount: input.annualLivingCost,
+    isAlreadySafe: false,
+  };
+}
+function createResultMessage(
+  lifeExpectancy: number,
+  depletionAge: number | null,
+  assetsAtLifeExpectancy: number,
+  assetsAtPlus10: number
+) {
+  if (depletionAge === null) {
+    return `想定寿命${lifeExpectancy}歳を超えても、資産は枯渇しない見込みです。長寿リスクに対して比較的余裕のある計画です。`;
+  }
+
+  if (depletionAge <= lifeExpectancy) {
+    return `想定寿命${lifeExpectancy}歳より前の${depletionAge}歳で資産が枯渇する見込みです。生活費の見直し、積立額の増加、リタイア年齢の再検討が必要です。`;
+  }
+
+  if (assetsAtPlus10 <= 0) {
+    return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
+      assetsAtLifeExpectancy
+    )}万円の資産が残る見込みです。ただし${depletionAge}歳で資産が枯渇するため、長寿リスクに備える場合は生活費の見直しが有効です。`;
+  }
+
+  return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
+    assetsAtLifeExpectancy
+  )}万円、${lifeExpectancy + 10}歳時点でも${formatManYen(
+    assetsAtPlus10
+  )}万円の資産が残る見込みです。比較的安定した計画です。`;
+}
+
 export default function RetirementSimulator() {
   const [currentAge, setCurrentAge] = useState(58);
   const [retirementAge, setRetirementAge] = useState(60);
@@ -229,6 +293,32 @@ export default function RetirementSimulator() {
 
   const result = useMemo(() => {
     return simulateRetirement({
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      currentAssets,
+      annualSavings,
+      annualLivingCost,
+      pensionStartAge,
+      annualPension,
+      annualReturnRate,
+      inflationRate,
+    });
+  }, [
+    currentAge,
+    retirementAge,
+    lifeExpectancy,
+    currentAssets,
+    annualSavings,
+    annualLivingCost,
+    pensionStartAge,
+    annualPension,
+    annualReturnRate,
+    inflationRate,
+  ]);
+
+  const livingCostSuggestion = useMemo(() => {
+    return findRecommendedLivingCost({
       currentAge,
       retirementAge,
       lifeExpectancy,
@@ -337,7 +427,12 @@ export default function RetirementSimulator() {
             unit="万円"
             onChange={setAnnualLivingCostText}
             onBlur={() => {
+              console.log("annualLivingCostText", annualLivingCostText);
+
               const value = parseManYen(annualLivingCostText, 0, 2000);
+
+              console.log("parsed value", value);
+              
               setAnnualLivingCost(value);
               setAnnualLivingCostText(formatInputNumber(value));
             }}
@@ -388,7 +483,7 @@ export default function RetirementSimulator() {
       <div className="mt-8 rounded-2xl bg-white p-5 shadow-md md:p-8">
         <h2 className="mb-5 text-xl font-semibold text-gray-900">試算結果</h2>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
             <ResultCard
               label="資産枯渇年齢"
               value={
@@ -396,6 +491,10 @@ export default function RetirementSimulator() {
                   ? "安泰"
                   : `${result.depletionAge}歳`
               }
+              status={getStatusColor(
+                result.depletionAge,
+                lifeExpectancy
+              )}
             />
 
             <ResultCard
@@ -413,11 +512,37 @@ export default function RetirementSimulator() {
               value={`${formatManYen(result.assetsAtPlus10)}万円`}
             />
           </div>
-          <div className="mt-6 rounded-xl bg-harvest-50 border border-harvest-200 p-5">
-            <p className="text-sm font-semibold text-harvest-700">診断コメント</p>
-            <p className="mt-2 leading-relaxed text-harvest-700">
+          <div className="mt-6 rounded-xl bg-amber-50 border border-amber-200 p-5">
+            <p className="text-sm font-semibold text-amber-700">診断コメント</p>
+            <p className="mt-2 leading-relaxed text-amber-700">
               {resultMessage}
             </p>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-5">
+            <p className="text-sm font-semibold text-blue-700">改善提案</p>
+
+            {livingCostSuggestion.isAlreadySafe ? (
+              <p className="mt-2 leading-relaxed text-blue-700">
+                現在の年間生活費
+                {formatManYen(annualLivingCost)}
+                万円でも、{lifeExpectancy + 10}歳まで資産を維持できる見込みです。
+              </p>
+            ) : (
+              <div className="mt-2 space-y-2 text-blue-700">
+                <p>
+                  {lifeExpectancy + 10}歳まで資産を維持するには、
+                  年間生活費を
+                  {formatManYen(livingCostSuggestion.recommendedLivingCost)}
+                  万円程度に抑える必要があります。
+                </p>
+                <p className="font-semibold">
+                  現在より年間
+                  {formatManYen(livingCostSuggestion.reductionAmount)}
+                  万円の削減が目安です。
+                </p>
+              </div>
+            )}
           </div>
         
         <div className="mt-8 h-[400px] w-full">
@@ -521,6 +646,11 @@ function MoneyInput({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.currentTarget.blur();
+            }
+          }}
           className="w-full rounded-lg border border-gray-300 px-3 py-3 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
         <span className="whitespace-nowrap text-sm text-gray-600">{unit}</span>
@@ -575,13 +705,31 @@ function RateSlider({
 type ResultCardProps = {
   label: string;
   value: string;
+  status?: "success" | "warning" | "danger";
 };
 
-function ResultCard({ label, value }: ResultCardProps) {
+function ResultCard({
+  label,
+  value,
+  status = "success",
+}: ResultCardProps) {
+  const colorClass = {
+    success:
+      "bg-green-50 border border-green-200",
+
+    warning:
+      "bg-yellow-50 border border-yellow-200",
+
+    danger:
+      "bg-red-50 border border-red-200",
+  };
   return (
-    <div className="rounded-xl bg-gray-50 p-5">
+    
+    <div className={`rounded-xl p-5 ${colorClass[status]}`}>
       <p className="text-sm text-gray-500">{label}</p>
       <p className="mt-2 text-2xl font-bold text-gray-900">{value}</p>
     </div>
+    
+    
   );
 }
