@@ -253,19 +253,19 @@ export default function RetirementSimulator() {
     inflationRate,
   ]);
 
-const resultMessage = useMemo(() => {
-  return createResultMessage(
+  const resultMessage = useMemo(() => {
+    return createResultMessage(
+      lifeExpectancy,
+      result.depletionAge,
+      result.assetsAtLifeExpectancy,
+      result.assetsAtPlus10
+    );
+  }, [
     lifeExpectancy,
     result.depletionAge,
     result.assetsAtLifeExpectancy,
-    result.assetsAtPlus10
-  );
-}, [
-  lifeExpectancy,
-  result.depletionAge,
-  result.assetsAtLifeExpectancy,
-  result.assetsAtPlus10,
-]);
+    result.assetsAtPlus10,
+  ]);
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
@@ -413,7 +413,13 @@ const resultMessage = useMemo(() => {
               value={`${formatManYen(result.assetsAtPlus10)}万円`}
             />
           </div>
-
+          <div className="mt-6 rounded-xl bg-harvest-50 border border-harvest-200 p-5">
+            <p className="text-sm font-semibold text-harvest-700">診断コメント</p>
+            <p className="mt-2 leading-relaxed text-harvest-700">
+              {resultMessage}
+            </p>
+          </div>
+        
         <div className="mt-8 h-[400px] w-full">
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={result.chartData}>
