@@ -197,9 +197,9 @@ type LivingCostSuggestion = {
 };
 
 function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion {
-  console.log("input", input);
+  //console.log("input", input);
   const currentResult = simulateRetirement(input);
-  console.log("currentResult", currentResult);
+  //console.log("currentResult", currentResult);
   
 
   if (currentResult.depletionAge === null) {
@@ -425,14 +425,12 @@ export default function RetirementSimulator() {
             label="年間想定生活費"
             value={annualLivingCostText}
             unit="万円"
-            onChange={setAnnualLivingCostText}
+            onChange={(text) => {
+              setAnnualLivingCostText(text);
+              setAnnualLivingCost(parseManYen(text, 0, 2000));
+            }}
             onBlur={() => {
-              console.log("annualLivingCostText", annualLivingCostText);
-
               const value = parseManYen(annualLivingCostText, 0, 2000);
-
-              console.log("parsed value", value);
-              
               setAnnualLivingCost(value);
               setAnnualLivingCostText(formatInputNumber(value));
             }}
@@ -519,17 +517,17 @@ export default function RetirementSimulator() {
             </p>
           </div>
 
-          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-5">
-            <p className="text-sm font-semibold text-blue-700">改善提案</p>
+          <div className="mt-4 rounded-xl border border-bgreen-200 bg-green-50 p-5">
+            <p className="text-sm font-semibold text-green-700">改善提案</p>
 
             {livingCostSuggestion.isAlreadySafe ? (
-              <p className="mt-2 leading-relaxed text-blue-700">
+              <p className="mt-2 leading-relaxed text-green-700">
                 現在の年間生活費
                 {formatManYen(annualLivingCost)}
                 万円でも、{lifeExpectancy + 10}歳まで資産を維持できる見込みです。
               </p>
             ) : (
-              <div className="mt-2 space-y-2 text-blue-700">
+              <div className="mt-2 space-y-2 text-green-700">
                 <p>
                   {lifeExpectancy + 10}歳まで資産を維持するには、
                   年間生活費を
@@ -602,7 +600,7 @@ function InputSelect({
         <select
           value={value}
           onChange={(event) => onChange(Number(event.target.value))}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
         >
           {options.map((option) => (
             <option key={option} value={option}>
