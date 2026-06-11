@@ -205,6 +205,20 @@ type LivingCostSuggestion = {
   isAlreadySafe: boolean;
 };
 
+
+
+type SavingsSuggestion = {
+  recommendedAnnualSavings: number;
+  additionalSavingsAmount: number;
+  isAlreadySafe: boolean;
+};
+
+type RetirementAgeSuggestion = {
+  recommendedRetirementAge: number;
+  additionalWorkingYears: number;
+  isAlreadySafe: boolean;
+};
+
 function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion {
   const currentResult = simulateRetirement(input);
 
@@ -266,6 +280,85 @@ function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion
     isAlreadySafe: false,
   };
 }
+
+function findRecommendedAnnualSavings(input: SimulationInput): SavingsSuggestion {
+  const currentResult = simulateRetirement(input);
+
+  if (currentResult.depletionAge === null) {
+    return {
+      recommendedAnnualSavings: input.annualSavings,
+      additionalSavingsAmount: 0,
+      isAlreadySafe: true,
+    };
+  }
+
+  for (
+    let savings = input.annualSavings + 10;
+    savings <= 1000;
+    savings += 10
+  ) {
+    const result = simulateRetirement({
+      ...input,
+      annualSavings: savings,
+    });
+
+    if (result.depletionAge === null) {
+      return {
+        recommendedAnnualSavings: savings,
+        additionalSavingsAmount: savings - input.annualSavings,
+        isAlreadySafe: false,
+      };
+    }
+  }
+
+  return {
+    recommendedAnnualSavings: 1000,
+    additionalSavingsAmount: 1000 - input.annualSavings,
+    isAlreadySafe: false,
+  };
+}
+
+function findRecommendedRetirementAge(
+  input: SimulationInput
+): RetirementAgeSuggestion {
+  const currentResult = simulateRetirement(input);
+
+  if (currentResult.depletionAge === null) {
+    return {
+      recommendedRetirementAge: input.retirementAge,
+      additionalWorkingYears: 0,
+      isAlreadySafe: true,
+    };
+  }
+
+  for (
+    let retirementAge = input.retirementAge + 1;
+    retirementAge <= 75;
+    retirementAge++
+  ) {
+    const result = simulateRetirement({
+      ...input,
+      retirementAge,
+    });
+
+    if (result.depletionAge === null) {
+      return {
+        recommendedRetirementAge: retirementAge,
+        additionalWorkingYears:
+          retirementAge - input.retirementAge,
+        isAlreadySafe: false,
+      };
+    }
+  }
+
+  return {
+    recommendedRetirementAge: 75,
+    additionalWorkingYears:
+      75 - input.retirementAge,
+    isAlreadySafe: false,
+  };
+}
+
 function createResultMessage(
   lifeExpectancy: number,
   depletionAge: number | null,
@@ -350,6 +443,58 @@ export default function RetirementSimulator() {
 
   const livingCostSuggestion = useMemo(() => {
     return findRecommendedLivingCost({
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      currentAssets,
+      annualSavings,
+      annualLivingCost,
+      pensionStartAge,
+      annualPension,
+      annualReturnRate,
+      inflationRate,
+    });
+  }, [
+    currentAge,
+    retirementAge,
+    lifeExpectancy,
+    currentAssets,
+    annualSavings,
+    annualLivingCost,
+    pensionStartAge,
+    annualPension,
+    annualReturnRate,
+    inflationRate,
+  ]);
+
+  const savingsSuggestion = useMemo(() => {
+    return findRecommendedAnnualSavings({
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      currentAssets,
+      annualSavings,
+      annualLivingCost,
+      pensionStartAge,
+      annualPension,
+      annualReturnRate,
+      inflationRate,
+    });
+  }, [
+    currentAge,
+    retirementAge,
+    lifeExpectancy,
+    currentAssets,
+    annualSavings,
+    annualLivingCost,
+    pensionStartAge,
+    annualPension,
+    annualReturnRate,
+    inflationRate,
+  ]);
+
+  const retirementAgeSuggestion = useMemo(() => {
+    return findRecommendedRetirementAge({
       currentAge,
       retirementAge,
       lifeExpectancy,
@@ -588,6 +733,38 @@ export default function RetirementSimulator() {
                 {formatManYen(livingCostSuggestion.reductionAmount)}
                 万円の削減が目安です。
               </p>
+
+              {!savingsSuggestion.isAlreadySafe && (
+  <>
+                  {savingsSuggestion.additionalSavingsAmount <= 300 ? (
+                    <p className="font-semibold">
+                      または、生活費を変えない場合は、年間積立額を現在より
+                      {formatManYen(savingsSuggestion.additionalSavingsAmount)}
+                      万円増やすことで、資産維持を目指せます。
+                    </p>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="font-semibold">
+                        積立額の増加だけで解決するには、年間
+                        {formatManYen(savingsSuggestion.additionalSavingsAmount)}
+                        万円の追加積立が必要です。
+                      </p>
+                      <p>
+                        現実的には、生活費の見直しやリタイア年齢の再検討もあわせて検討してください。
+                      </p>
+                      {!retirementAgeSuggestion.isAlreadySafe && (
+                      <p className="font-semibold">
+                        または、リタイア年齢を
+                        {retirementAgeSuggestion.recommendedRetirementAge}
+                        歳まで延ばすことで、
+                        資産維持を目指せます。
+                      </p>
+                      
+                    )}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
           </div>
