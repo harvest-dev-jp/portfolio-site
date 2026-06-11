@@ -95,7 +95,7 @@ npm start
 
 ### Contact (`/contact`)
 - お問い合わせフォーム
-- 代替連絡方法（メール、GitHub、Twitter）
+- 代替連絡方法（メール、GitHub）
 - FAQ
 
 ## 🔧 技術スタック
