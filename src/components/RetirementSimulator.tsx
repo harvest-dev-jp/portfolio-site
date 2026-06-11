@@ -95,6 +95,12 @@ const createRange = (start: number, end: number, step = 1) => {
   return values;
 };
 
+function getAssetStatus(asset: number) {
+  if (asset >= 3000) return "success";
+  if (asset >= 500) return "warning";
+  return "danger";
+}
+
 function simulateRetirement(input: SimulationInput): SimulationResult {
   const {
     currentAge,
@@ -190,22 +196,45 @@ function simulateRetirement(input: SimulationInput): SimulationResult {
   };
 }
 
+
+
 type LivingCostSuggestion = {
   recommendedLivingCost: number;
   reductionAmount: number;
+  extraSpendableAmount: number;
   isAlreadySafe: boolean;
 };
 
 function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion {
-  //console.log("input", input);
   const currentResult = simulateRetirement(input);
-  //console.log("currentResult", currentResult);
-  
 
   if (currentResult.depletionAge === null) {
+    let maxLivingCost = input.annualLivingCost;
+
+    for (
+      let livingCost = input.annualLivingCost + 10;
+      livingCost <= 2000;
+      livingCost += 10
+    ) {
+      const result = simulateRetirement({
+        ...input,
+        annualLivingCost: livingCost,
+      });
+
+      if (result.depletionAge === null) {
+        maxLivingCost = livingCost;
+      } else {
+        break;
+      }
+    }
+
+    //console.log("maxLivingCost", maxLivingCost);
+    //console.log("currentLivingCost", input.annualLivingCost);
+
     return {
-      recommendedLivingCost: input.annualLivingCost,
+      recommendedLivingCost: maxLivingCost,
       reductionAmount: 0,
+      extraSpendableAmount: maxLivingCost - input.annualLivingCost,
       isAlreadySafe: true,
     };
   }
@@ -224,6 +253,7 @@ function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion
       return {
         recommendedLivingCost: livingCost,
         reductionAmount: input.annualLivingCost - livingCost,
+        extraSpendableAmount: 0,
         isAlreadySafe: false,
       };
     }
@@ -232,6 +262,7 @@ function findRecommendedLivingCost(input: SimulationInput): LivingCostSuggestion
   return {
     recommendedLivingCost: 0,
     reductionAmount: input.annualLivingCost,
+    extraSpendableAmount: 0,
     isAlreadySafe: false,
   };
 }
@@ -257,7 +288,7 @@ function createResultMessage(
 
   return `想定寿命${lifeExpectancy}歳時点では${formatManYen(
     assetsAtLifeExpectancy
-  )}万円、${lifeExpectancy + 10}歳時点でも${formatManYen(
+  )}万円、${Math.min(lifeExpectancy + 10, 110)}歳時点でも${formatManYen(
     assetsAtPlus10
   )}万円の資産が残る見込みです。比較的安定した計画です。`;
 }
@@ -496,18 +527,21 @@ export default function RetirementSimulator() {
             />
 
             <ResultCard
-              label={`${lifeExpectancy - 10}歳時点の資産`}
+              label={`${Math.max(currentAge, lifeExpectancy - 10)}歳時点の資産`}
               value={`${formatManYen(result.assetsAtMinus10)}万円`}
+              status={getAssetStatus(result.assetsAtMinus10)}
             />
 
             <ResultCard
               label={`${lifeExpectancy}歳時点の資産`}
               value={`${formatManYen(result.assetsAtLifeExpectancy)}万円`}
+              status={getAssetStatus(result.assetsAtLifeExpectancy)}
             />
 
             <ResultCard
-              label={`${lifeExpectancy + 10}歳時点の資産`}
+              label={`${Math.min(lifeExpectancy + 10, 110)}歳時点の資産`}
               value={`${formatManYen(result.assetsAtPlus10)}万円`}
+              status={getAssetStatus(result.assetsAtPlus10)}
             />
           </div>
           <div className="mt-6 rounded-xl bg-amber-50 border border-amber-200 p-5">
@@ -517,30 +551,45 @@ export default function RetirementSimulator() {
             </p>
           </div>
 
-          <div className="mt-4 rounded-xl border border-bgreen-200 bg-green-50 p-5">
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-5">
             <p className="text-sm font-semibold text-green-700">改善提案</p>
 
             {livingCostSuggestion.isAlreadySafe ? (
-              <p className="mt-2 leading-relaxed text-green-700">
-                現在の年間生活費
-                {formatManYen(annualLivingCost)}
-                万円でも、{lifeExpectancy + 10}歳まで資産を維持できる見込みです。
-              </p>
-            ) : (
-              <div className="mt-2 space-y-2 text-green-700">
-                <p>
-                  {lifeExpectancy + 10}歳まで資産を維持するには、
-                  年間生活費を
-                  {formatManYen(livingCostSuggestion.recommendedLivingCost)}
-                  万円程度に抑える必要があります。
-                </p>
+        <div className="mt-2 space-y-2 text-green-700">
+          <p>
+            現在の年間生活費
+            {formatManYen(annualLivingCost)}
+            万円でも、{Math.min(lifeExpectancy + 10, 110)}
+            歳まで資産を維持できる見込みです。
+          </p>
+
+          {livingCostSuggestion.extraSpendableAmount > 0 ? (
                 <p className="font-semibold">
-                  現在より年間
-                  {formatManYen(livingCostSuggestion.reductionAmount)}
-                  万円の削減が目安です。
+                  さらに年間
+                  {formatManYen(livingCostSuggestion.extraSpendableAmount)}
+                  万円程度まで生活費を増やせる可能性があります。
                 </p>
-              </div>
-            )}
+              ) : (
+                <p className="font-semibold">
+                  現在の生活費は、目標年齢まで資産を維持するための上限に近い水準です。
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="mt-2 space-y-2 text-green-700">
+              <p>
+                {Math.min(lifeExpectancy + 10, 110)}
+                歳まで資産を維持するには、 年間生活費を
+                {formatManYen(livingCostSuggestion.recommendedLivingCost)}
+                万円程度に抑える必要があります。
+              </p>
+              <p className="font-semibold">
+                現在より年間
+                {formatManYen(livingCostSuggestion.reductionAmount)}
+                万円の削減が目安です。
+              </p>
+            </div>
+          )}
           </div>
         
         <div className="mt-8 h-[400px] w-full">
