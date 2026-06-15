@@ -17,7 +17,7 @@ export default function Works() {
     {
       id: 2,
       icon: "📈",
-      status: "開発中",
+      status: "公開中",
       title: "動的リタイアメント・シミュレーター",
       description:
         "投資リターン、インフレ率、年金受給を考慮し、月次単位で資産推移を計算するWebアプリケーション。React、TypeScript、Rechartsを利用して開発中。",
@@ -30,10 +30,10 @@ export default function Works() {
       id: 3,
       icon: "📱",
       status: "準備中",
-      title: "iPhoneアプリ開発（準備中）",
+      title: "ふるさと納税シミュレーション＋",
       description:
-        "SwiftおよびAI活用技術を学習しながら、個人向けの実用アプリ開発を計画中。今後公開予定のプロジェクトです。",
-      technologies: ["Swift", "iOS", "AI"],
+        "年収や家族構成だけでなく、iDeCoや住宅ローン控除なども考慮し、自己負担額を2,000円に収められる寄附上限額の目安を試算するWebアプリ。",
+      technologies: ["React", "TypeScript", "Recharts"],
       link: "",
       linkLabel: "準備中",
       external: false,

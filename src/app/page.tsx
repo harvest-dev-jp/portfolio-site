@@ -18,9 +18,9 @@ export default function Home() {
     },
     {
       id: 3,
-      title: "iPhoneアプリ開発",
+      title: "ふるさと納税シミュレーション＋",
       description:
-        "SwiftとAI活用技術を学習しながら開発予定の個人向けアプリ。",
+        "年収や家族構成だけでなく、iDeCoや住宅ローン控除なども考慮し、自己負担額を2,000円に収められる寄附上限額の目安を試算するWebアプリ。",
       link: "/works",
     },
   ];
