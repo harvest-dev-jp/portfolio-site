@@ -24,6 +24,8 @@ type SimulationInput = {
   inflationRate: number;
 };
 
+type SavedSimulationInput = SimulationInput;
+
 type ChartData = {
   age: number;
   assets: number;
@@ -37,6 +39,8 @@ type SimulationResult = {
   assetsAtPlus10: number;
   chartData: ChartData[];
 };
+
+const STORAGE_KEY = "harvest-retirement-simulator-input";
 
 const clamp = (value: number, min: number, max: number) => {
   if (Number.isNaN(value)) return min;
@@ -196,7 +200,69 @@ function simulateRetirement(input: SimulationInput): SimulationResult {
   };
 }
 
+function downloadSimulationCsv(
+  input: SimulationInput,
+  result: SimulationResult
+) {
+  const minus10Age = Math.max(input.currentAge, input.lifeExpectancy - 10);
+  const plus10Age = Math.min(input.lifeExpectancy + 10, 110);
 
+  const depletionAgeText =
+    result.depletionAge === null
+      ? "安泰"
+      : `${result.depletionAge}歳`;
+
+  const lines = [
+    ["入力条件"],
+    ["現在の年齢", `${input.currentAge}歳`],
+    ["リタイア予定年齢", `${input.retirementAge}歳`],
+    ["想定寿命", `${input.lifeExpectancy}歳`],
+    ["現在の運用資産額", `${input.currentAssets}万円`],
+    ["年間積立額", `${input.annualSavings}万円`],
+    ["年間想定生活費", `${input.annualLivingCost}万円`],
+    ["年金受給開始年齢", `${input.pensionStartAge}歳`],
+    ["年間想定年金額", `${input.annualPension}万円`],
+    ["想定投資リターン", `${input.annualReturnRate}%`],
+    ["想定インフレ率", `${input.inflationRate}%`],
+    [],
+    ["試算結果"],
+    ["資産枯渇年齢", depletionAgeText],
+    [`${minus10Age}歳時点の資産`, `${result.assetsAtMinus10}万円`],
+    [`${input.lifeExpectancy}歳時点の資産`, `${result.assetsAtLifeExpectancy}万円`],
+    [`${plus10Age}歳時点の資産`, `${result.assetsAtPlus10}万円`],
+    [],
+    ["資産推移"],
+    ["年齢", "資産残高（万円）"],
+    ...result.chartData.map((item) => [
+      `${item.age}`,
+      `${item.assets}`,
+    ]),
+  ];
+
+  const csv = lines
+    .map((row) =>
+      row
+        .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+
+  const bom = "\uFEFF";
+  const blob = new Blob([bom + csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  const date = new Date().toISOString().slice(0, 10);
+
+  link.href = url;
+  link.download = `retirement-simulation-${date}.csv`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 
 type LivingCostSuggestion = {
   recommendedLivingCost: number;
@@ -414,6 +480,90 @@ export default function RetirementSimulator() {
       setLifeExpectancy(retirementAge);
     }
   }, [currentAge, retirementAge, lifeExpectancy]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved) as Partial<SavedSimulationInput>;
+
+      if (typeof parsed.currentAge === "number") {
+        setCurrentAge(parsed.currentAge);
+      }
+
+      if (typeof parsed.retirementAge === "number") {
+        setRetirementAge(parsed.retirementAge);
+      }
+
+      if (typeof parsed.lifeExpectancy === "number") {
+        setLifeExpectancy(parsed.lifeExpectancy);
+      }
+
+      if (typeof parsed.currentAssets === "number") {
+        setCurrentAssets(parsed.currentAssets);
+        setCurrentAssetsText(formatInputNumber(parsed.currentAssets));
+      }
+
+      if (typeof parsed.annualSavings === "number") {
+        setAnnualSavings(parsed.annualSavings);
+        setAnnualSavingsText(formatInputNumber(parsed.annualSavings));
+      }
+
+      if (typeof parsed.annualLivingCost === "number") {
+        setAnnualLivingCost(parsed.annualLivingCost);
+        setAnnualLivingCostText(formatInputNumber(parsed.annualLivingCost));
+      }
+
+      if (typeof parsed.pensionStartAge === "number") {
+        setPensionStartAge(parsed.pensionStartAge);
+      }
+
+      if (typeof parsed.annualPension === "number") {
+        setAnnualPension(parsed.annualPension);
+        setAnnualPensionText(formatInputNumber(parsed.annualPension));
+      }
+
+      if (typeof parsed.annualReturnRate === "number") {
+        setAnnualReturnRate(parsed.annualReturnRate);
+      }
+
+      if (typeof parsed.inflationRate === "number") {
+        setInflationRate(parsed.inflationRate);
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    const input: SavedSimulationInput = {
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      currentAssets,
+      annualSavings,
+      annualLivingCost,
+      pensionStartAge,
+      annualPension,
+      annualReturnRate,
+      inflationRate,
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(input));
+  }, [
+    currentAge,
+    retirementAge,
+    lifeExpectancy,
+    currentAssets,
+    annualSavings,
+    annualLivingCost,
+    pensionStartAge,
+    annualPension,
+    annualReturnRate,
+    inflationRate,
+  ]);
 
   const result = useMemo(() => {
     return simulateRetirement({
@@ -735,7 +885,7 @@ export default function RetirementSimulator() {
               </p>
 
               {!savingsSuggestion.isAlreadySafe && (
-  <>
+              <>
                   {savingsSuggestion.additionalSavingsAmount <= 300 ? (
                     <p className="font-semibold">
                       または、生活費を変えない場合は、年間積立額を現在より
@@ -792,6 +942,33 @@ export default function RetirementSimulator() {
               />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+
+
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() =>
+            downloadSimulationCsv(
+              {
+                currentAge,
+                retirementAge,
+                lifeExpectancy,
+                currentAssets,
+                annualSavings,
+                annualLivingCost,
+                pensionStartAge,
+                annualPension,
+                annualReturnRate,
+                inflationRate,
+              },
+              result
+            )
+          }
+            className="rounded-xl border border-green-300 bg-white px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50"
+          >
+            CSV出力
+          </button>
         </div>
 
         <p className="mt-4 text-sm text-gray-500">
