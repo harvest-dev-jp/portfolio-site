@@ -34,8 +34,8 @@ export default function Works() {
       description:
         "年収や家族構成だけでなく、iDeCoや住宅ローン控除なども考慮し、自己負担額を2,000円に収められる寄附上限額の目安を試算するWebアプリ。",
       technologies: ["React", "TypeScript", "Recharts"],
-      link: "",
-      linkLabel: "準備中",
+      link: "/works/furusato-tax",
+      linkLabel: "詳細を見る →",
       external: false,
     },
   ];
