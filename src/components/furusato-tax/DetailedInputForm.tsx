@@ -6,101 +6,11 @@ import type {
   SafetyRate,
 } from "@/lib/furusato-tax/types";
 
+import MoneyInput from "./MoneyInput";
+
 interface DetailedInputFormProps {
   value: DetailedInput;
   onChange: (updates: Partial<DetailedInput>) => void;
-}
-
-interface NumberInputProps {
-  id: string;
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-  suffix?: string;
-  description?: string;
-}
-
-function NumberInput({
-  id,
-  label,
-  value,
-  onChange,
-  min = 0,
-  max,
-  step = 1,
-  suffix,
-  description,
-}: NumberInputProps) {
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const nextValue = event.target.value;
-
-    if (nextValue === "") {
-      onChange(0);
-      return;
-    }
-
-    const parsedValue = Number(nextValue);
-
-    if (!Number.isFinite(parsedValue)) {
-      return;
-    }
-
-    const valueWithinMinimum = Math.max(min, parsedValue);
-
-    if (max !== undefined) {
-      onChange(Math.min(max, valueWithinMinimum));
-      return;
-    }
-
-    onChange(valueWithinMinimum);
-  };
-
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-semibold text-slate-800"
-      >
-        {label}
-      </label>
-
-      {description && (
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          {description}
-        </p>
-      )}
-
-      <div className="relative mt-2">
-        <input
-          id={id}
-          type="number"
-          inputMode="numeric"
-          value={value}
-          min={min}
-          max={max}
-          step={step}
-          onChange={handleChange}
-          className={[
-            "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5",
-            "text-right text-slate-900 shadow-sm outline-none transition",
-            "focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200",
-            suffix ? "pr-12" : "",
-          ].join(" ")}
-        />
-
-        {suffix && (
-          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
-            {suffix}
-          </span>
-        )}
-      </div>
-    </div>
-  );
 }
 
 export default function DetailedInputForm({
@@ -138,65 +48,73 @@ export default function DetailedInputForm({
           </p>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="detailed-payment-amount"
             label="支払金額"
             value={value.paymentAmount}
             onChange={(paymentAmount) =>
               onChange({ paymentAmount })
             }
-            step={10_000}
-            suffix="円"
+            min={0}
+            max={100_000_000}
+            step={1}
             description="源泉徴収票の「支払金額」を入力します。"
+            required
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-salary-income-after-deduction"
             label="給与所得控除後の金額"
             value={value.salaryIncomeAfterDeduction}
             onChange={(salaryIncomeAfterDeduction) =>
               onChange({ salaryIncomeAfterDeduction })
             }
-            step={10_000}
-            suffix="円"
-            description="所得金額調整控除後の金額が記載されている場合は、その金額です。"
+            min={0}
+            max={100_000_000}
+            step={1}
+            description="所得金額調整控除後の金額が記載されている場合は、その金額を入力します。"
+            required
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-total-income-deduction"
             label="所得控除の額の合計額"
             value={value.totalIncomeDeduction}
             onChange={(totalIncomeDeduction) =>
               onChange({ totalIncomeDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={100_000_000}
+            step={1}
             description="源泉徴収票に記載された所得控除の合計額です。"
+            required
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-withholding-tax"
             label="源泉徴収税額"
             value={value.withholdingTaxAmount}
             onChange={(withholdingTaxAmount) =>
               onChange({ withholdingTaxAmount })
             }
-            step={1_000}
-            suffix="円"
-            description="計算結果の確認・検算に利用します。"
+            min={0}
+            max={100_000_000}
+            step={1}
+            description="計算結果の確認や検算に利用します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-housing-loan-tax-credit"
             label="住宅借入金等特別控除の額"
             value={value.housingLoanTaxCredit}
             onChange={(housingLoanTaxCredit) =>
               onChange({ housingLoanTaxCredit })
             }
-            step={1_000}
-            suffix="円"
-            description="住宅ローン年末残高ではなく、適用された控除額です。"
+            min={0}
+            max={10_000_000}
+            step={1}
+            description="住宅ローン年末残高ではなく、適用された控除額を入力します。"
           />
         </div>
       </section>
@@ -215,12 +133,12 @@ export default function DetailedInputForm({
           </h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            iDeCoあり・なしの比較や計算内訳の表示に使用します。
+            iDeCoあり・なしの比較や、計算内訳の表示に使用します。
           </p>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="detailed-social-insurance-and-small-business"
             label="社会保険料等の金額"
             value={
@@ -233,90 +151,97 @@ export default function DetailedInputForm({
                 socialInsuranceAndSmallBusinessPremium,
               })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={20_000_000}
+            step={1}
             description="源泉徴収票の「社会保険料等の金額」を入力します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-included-ideco"
             label="うちiDeCo等の掛金額"
             value={value.includedIdecoContribution}
             onChange={(includedIdecoContribution) =>
               onChange({ includedIdecoContribution })
             }
-            step={1_000}
-            suffix="円"
-            description="上記金額に含まれる小規模企業共済等掛金の金額です。"
+            min={0}
+            max={2_000_000}
+            step={1}
+            description="社会保険料等の金額に含まれる、小規模企業共済等掛金の金額です。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-life-insurance"
             label="生命保険料控除額"
             value={value.lifeInsuranceDeduction}
             onChange={(lifeInsuranceDeduction) =>
               onChange({ lifeInsuranceDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={200_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-earthquake-insurance"
             label="地震保険料控除額"
             value={value.earthquakeInsuranceDeduction}
             onChange={(earthquakeInsuranceDeduction) =>
               onChange({ earthquakeInsuranceDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={100_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-spouse-deduction"
             label="配偶者控除・配偶者特別控除額"
             value={value.spouseDeduction}
             onChange={(spouseDeduction) =>
               onChange({ spouseDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={1_000_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-basic-deduction"
             label="基礎控除額"
             value={value.basicDeduction}
             onChange={(basicDeduction) =>
               onChange({ basicDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={2_000_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-income-adjustment-deduction"
             label="所得金額調整控除額"
             value={value.incomeAdjustmentDeduction}
             onChange={(incomeAdjustmentDeduction) =>
               onChange({ incomeAdjustmentDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={10_000_000}
+            step={1}
             description="該当しない場合は0円のままにします。"
           />
         </div>
 
         <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          「社会保険料等の金額」にiDeCoの掛金が含まれている場合、
-          iDeCo額を別欄にも入力してください。計算時に二重控除を
-          防ぎながら、iDeCoあり・なしの比較に使用します。
+          「社会保険料等の金額」にiDeCoの掛金が含まれている場合は、
+          iDeCo額を別欄にも入力してください。計算時の二重控除を防ぎ、
+          iDeCoあり・なしの比較に使用します。
         </div>
       </section>
 
       <hr className="border-slate-200" />
 
-      {/* STEP 3 追加する控除 */}
+      {/* STEP 3 年末調整後に追加する控除 */}
       <section>
         <div className="mb-4">
           <p className="text-sm font-semibold text-emerald-700">
@@ -328,13 +253,13 @@ export default function DetailedInputForm({
           </h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            医療費控除など、源泉徴収票の所得控除合計に含まれて
-            いない控除を入力します。
+            医療費控除など、源泉徴収票の所得控除合計に
+            含まれていない控除を入力します。
           </p>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="detailed-additional-medical-expense"
             label="医療費控除額"
             value={
@@ -347,31 +272,34 @@ export default function DetailedInputForm({
                 additionalMedicalExpenseDeduction,
               })
             }
-            step={1_000}
-            suffix="円"
-            description="医療費の支払総額ではなく、控除額を入力します。"
+            min={0}
+            max={20_000_000}
+            step={1}
+            description="医療費の支払総額ではなく、実際の控除額を入力します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-additional-income-deduction"
             label="その他の追加所得控除"
             value={value.additionalIncomeDeduction}
             onChange={(additionalIncomeDeduction) =>
               onChange({ additionalIncomeDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={20_000_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="detailed-additional-tax-credit"
             label="その他の追加税額控除"
             value={value.additionalTaxCredit}
             onChange={(additionalTaxCredit) =>
               onChange({ additionalTaxCredit })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={10_000_000}
+            step={1}
           />
         </div>
       </section>
@@ -390,16 +318,17 @@ export default function DetailedInputForm({
           </h3>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="detailed-planned-donation"
             label="寄附予定額"
             value={value.plannedDonation}
             onChange={(plannedDonation) =>
               onChange({ plannedDonation })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={100_000_000}
+            step={1}
             description="未定の場合は0円のままで試算できます。"
           />
 
@@ -437,7 +366,7 @@ export default function DetailedInputForm({
             申告方法
           </legend>
 
-          <div className="mt-2 grid gap-3 xl:grid-cols-2">
+          <div className="mt-2 grid gap-3">
             <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-4 hover:bg-slate-50">
               <input
                 type="radio"
@@ -464,9 +393,7 @@ export default function DetailedInputForm({
               <input
                 type="radio"
                 name="detailed-filing-method"
-                checked={
-                  value.filingMethod === "tax-return"
-                }
+                checked={value.filingMethod === "tax-return"}
                 onChange={() =>
                   handleFilingMethodChange("tax-return")
                 }
@@ -489,4 +416,3 @@ export default function DetailedInputForm({
     </div>
   );
 }
-

@@ -1,56 +1,59 @@
 // src/components/furusato-tax/SimpleInputForm.tsx
 
+import type { ChangeEvent } from "react";
+
 import type {
   FilingMethod,
   SafetyRate,
   SimpleInput,
 } from "@/lib/furusato-tax/types";
 
+import MoneyInput from "./MoneyInput";
+
 interface SimpleInputFormProps {
   value: SimpleInput;
   onChange: (updates: Partial<SimpleInput>) => void;
 }
 
-interface NumberInputProps {
+interface AgeInputProps {
   id: string;
   label: string;
   value: number;
   onChange: (value: number) => void;
   min?: number;
   max?: number;
-  step?: number;
-  suffix?: string;
   description?: string;
 }
 
-function NumberInput({
+/**
+ * 年齢入力用コンポーネント。
+ *
+ * 金額入力ではないためMoneyInputとは分離する。
+ */
+function AgeInput({
   id,
   label,
   value,
   onChange,
-  min = 0,
-  max,
-  step = 1,
-  suffix,
+  min = 18,
+  max = 120,
   description,
-}: NumberInputProps) {
+}: AgeInputProps) {
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
-    const nextValue = event.target.value;
+    const nextValue = Number(event.target.value);
 
-    if (nextValue === "") {
-      onChange(0);
+    if (!Number.isFinite(nextValue)) {
       return;
     }
 
-    const parsedValue = Number(nextValue);
-
-    if (!Number.isFinite(parsedValue)) {
-      return;
-    }
-
-    onChange(Math.max(min, parsedValue));
+    onChange(
+      Math.min(
+        max,
+        Math.max(min, Math.trunc(nextValue)),
+      ),
+    );
   };
 
   return (
@@ -76,21 +79,18 @@ function NumberInput({
           value={value}
           min={min}
           max={max}
-          step={step}
+          step={1}
           onChange={handleChange}
           className={[
             "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5",
-            "text-right text-slate-900 shadow-sm outline-none transition",
+            "pr-12 text-right text-slate-900 shadow-sm outline-none transition",
             "focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200",
-            suffix ? "pr-12" : "",
           ].join(" ")}
         />
 
-        {suffix && (
-          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
-            {suffix}
-          </span>
-        )}
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
+          歳
+        </span>
       </div>
     </div>
   );
@@ -126,20 +126,22 @@ export default function SimpleInputForm({
           </h3>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="simple-salary-income"
             label="給与収入"
             value={value.salaryIncome}
             onChange={(salaryIncome) =>
               onChange({ salaryIncome })
             }
-            step={10_000}
-            suffix="円"
+            min={0}
+            max={100_000_000}
+            step={1}
             description="2026年中に受け取る給与・賞与の合計見込額です。"
+            required
           />
 
-          <NumberInput
+          <AgeInput
             id="simple-taxpayer-age"
             label="本人の年齢"
             value={value.taxpayerAge}
@@ -148,7 +150,6 @@ export default function SimpleInputForm({
             }
             min={18}
             max={120}
-            suffix="歳"
             description="2026年12月31日時点の年齢を入力します。"
           />
         </div>
@@ -173,6 +174,7 @@ export default function SimpleInputForm({
                   }
                   className="h-4 w-4 accent-emerald-600"
                 />
+
                 <span className="text-sm text-slate-700">
                   なし
                 </span>
@@ -188,6 +190,7 @@ export default function SimpleInputForm({
                   }
                   className="h-4 w-4 accent-emerald-600"
                 />
+
                 <span className="text-sm text-slate-700">
                   あり
                 </span>
@@ -198,15 +201,16 @@ export default function SimpleInputForm({
 
         {value.hasSpouse && (
           <div className="mt-5">
-            <NumberInput
+            <MoneyInput
               id="simple-spouse-salary-income"
               label="配偶者の年間給与収入"
               value={value.spouseSalaryIncome}
               onChange={(spouseSalaryIncome) =>
                 onChange({ spouseSalaryIncome })
               }
-              step={10_000}
-              suffix="円"
+              min={0}
+              max={100_000_000}
+              step={1}
               description="配偶者の2026年中の給与収入見込額です。"
             />
           </div>
@@ -242,75 +246,81 @@ export default function SimpleInputForm({
           </h3>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="simple-social-insurance"
             label="社会保険料"
             value={value.socialInsurancePremium}
             onChange={(socialInsurancePremium) =>
               onChange({ socialInsurancePremium })
             }
-            step={10_000}
-            suffix="円"
+            min={0}
+            max={20_000_000}
+            step={1}
             description="健康保険、厚生年金、雇用保険などの年間合計額です。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-ideco"
             label="iDeCo年間掛金"
             value={value.idecoContribution}
             onChange={(idecoContribution) =>
               onChange({ idecoContribution })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={2_000_000}
+            step={1}
             description="2026年中に支払う掛金の年間合計額です。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-life-insurance"
             label="生命保険料控除額"
             value={value.lifeInsuranceDeduction}
             onChange={(lifeInsuranceDeduction) =>
               onChange({ lifeInsuranceDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={200_000}
+            step={1}
             description="保険料の支払額ではなく、控除額を入力します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-earthquake-insurance"
             label="地震保険料控除額"
             value={value.earthquakeInsuranceDeduction}
             onChange={(earthquakeInsuranceDeduction) =>
               onChange({ earthquakeInsuranceDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={100_000}
+            step={1}
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-medical-expense"
             label="医療費控除額"
             value={value.medicalExpenseDeduction}
             onChange={(medicalExpenseDeduction) =>
               onChange({ medicalExpenseDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={20_000_000}
+            step={1}
             description="支払った医療費の総額ではなく、実際の控除額を入力します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-other-income-deduction"
             label="その他の所得控除"
             value={value.otherIncomeDeduction}
             onChange={(otherIncomeDeduction) =>
               onChange({ otherIncomeDeduction })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={20_000_000}
+            step={1}
           />
         </div>
       </section>
@@ -329,28 +339,30 @@ export default function SimpleInputForm({
           </h3>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="simple-housing-loan-tax-credit"
             label="住宅ローン控除見込額"
             value={value.housingLoanTaxCredit}
             onChange={(housingLoanTaxCredit) =>
               onChange({ housingLoanTaxCredit })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={10_000_000}
+            step={1}
             description="住宅ローン年末残高ではなく、住宅借入金等特別控除額を入力します。"
           />
 
-          <NumberInput
+          <MoneyInput
             id="simple-other-tax-credit"
             label="その他の税額控除"
             value={value.otherTaxCredit}
             onChange={(otherTaxCredit) =>
               onChange({ otherTaxCredit })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={10_000_000}
+            step={1}
           />
         </div>
       </section>
@@ -369,16 +381,17 @@ export default function SimpleInputForm({
           </h3>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
-          <NumberInput
+        <div className="grid gap-5">
+          <MoneyInput
             id="simple-planned-donation"
             label="寄附予定額"
             value={value.plannedDonation}
             onChange={(plannedDonation) =>
               onChange({ plannedDonation })
             }
-            step={1_000}
-            suffix="円"
+            min={0}
+            max={100_000_000}
+            step={1}
             description="未定の場合は0円のままで試算できます。"
           />
 
@@ -416,7 +429,7 @@ export default function SimpleInputForm({
             申告方法
           </legend>
 
-          <div className="mt-2 grid gap-3 xl:grid-cols-2">
+          <div className="mt-2 grid gap-3">
             <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-4 hover:bg-slate-50">
               <input
                 type="radio"
@@ -443,9 +456,7 @@ export default function SimpleInputForm({
               <input
                 type="radio"
                 name="simple-filing-method"
-                checked={
-                  value.filingMethod === "tax-return"
-                }
+                checked={value.filingMethod === "tax-return"}
                 onChange={() =>
                   handleFilingMethodChange("tax-return")
                 }
@@ -468,4 +479,3 @@ export default function SimpleInputForm({
     </div>
   );
 }
-
