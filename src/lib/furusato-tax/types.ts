@@ -9,17 +9,11 @@ export type TaxYear = 2026;
 
 /**
  * 入力モード
- *
- * simple   : かんたん入力
- * detailed : 源泉徴収票を使った詳細入力
  */
 export type InputMode = "simple" | "detailed";
 
 /**
  * ふるさと納税の申告方法
- *
- * one-stop  : ワンストップ特例
- * tax-return: 確定申告
  */
 export type FilingMethod = "one-stop" | "tax-return";
 
@@ -31,17 +25,26 @@ export type SafetyRate = 0.9 | 0.95 | 1;
 /**
  * 扶養親族との続柄
  */
-export type Relationship = "child" | "parent" | "other";
+export type Relationship =
+  | "child"
+  | "parent"
+  | "other";
 
 /**
  * 障害者控除の区分
  */
-export type DisabilityCategory = "none" | "general" | "special";
+export type DisabilityCategory =
+  | "none"
+  | "general"
+  | "special";
 
 /**
  * 診断結果の区分
  */
-export type DiagnosisLevel = "safe" | "caution" | "over";
+export type DiagnosisLevel =
+  | "safe"
+  | "caution"
+  | "over";
 
 /**
  * 比較試算のシナリオ
@@ -56,29 +59,10 @@ export type ComparisonScenario =
  * 扶養親族
  */
 export interface Dependent {
-  /**
-   * Reactの一覧表示で使用する一意のID
-   */
   id: string;
-
-  /**
-   * 続柄
-   */
   relationship: Relationship;
-
-  /**
-   * その年の12月31日時点の年齢
-   */
   age: number;
-
-  /**
-   * 同居しているか
-   */
   livesTogether: boolean;
-
-  /**
-   * 障害者控除の区分
-   */
   disabilityCategory: DisabilityCategory;
 }
 
@@ -117,8 +101,6 @@ export interface SimpleInput {
 
 /**
  * 詳細入力
- *
- * 主に源泉徴収票に記載されている金額を入力する。
  */
 export interface DetailedInput {
   taxYear: TaxYear;
@@ -129,19 +111,8 @@ export interface DetailedInput {
   totalIncomeDeduction: number;
   withholdingTaxAmount: number;
 
-  /**
-   * 源泉徴収票の「社会保険料等の金額」
-   *
-   * iDeCoなどの小規模企業共済等掛金が
-   * 含まれている場合がある。
-   */
+  // 社会保険料・iDeCo
   socialInsuranceAndSmallBusinessPremium: number;
-
-  /**
-   * 上記金額に含まれるiDeCo等の年間掛金額
-   *
-   * 比較計算と二重控除の防止に使用する。
-   */
   includedIdecoContribution: number;
 
   // 所得控除の内訳
@@ -167,9 +138,6 @@ export interface DetailedInput {
 
 /**
  * シミュレーター全体の入力状態
- *
- * 入力モードを切り替えても、
- * かんたん入力と詳細入力の値を保持する。
  */
 export interface SimulatorFormState {
   mode: InputMode;
@@ -178,8 +146,7 @@ export interface SimulatorFormState {
 }
 
 /**
- * かんたん入力と詳細入力を、
- * 共通の計算形式に変換したデータ。
+ * 共通計算用入力
  */
 export interface NormalizedTaxInput {
   taxYear: TaxYear;
@@ -229,15 +196,11 @@ export interface IncomeDeductionBreakdown {
 }
 
 /**
- * 所得税の計算結果
+ * 所得税計算結果
  */
 export interface IncomeTaxResult {
   taxableIncome: number;
   taxRate: number;
-
-  /**
-   * 所得税の速算表で税率とともに使用する控除額
-   */
   bracketDeductionAmount: number;
 
   taxBeforeCredits: number;
@@ -247,7 +210,7 @@ export interface IncomeTaxResult {
 }
 
 /**
- * 住民税の計算結果
+ * 住民税計算結果
  */
 export interface ResidentTaxResult {
   taxableIncome: number;
@@ -260,7 +223,7 @@ export interface ResidentTaxResult {
 }
 
 /**
- * ふるさと納税による控除額の内訳
+ * ふるさと納税控除の内訳
  */
 export interface DonationDeductionBreakdown {
   incomeTaxDeduction: number;
@@ -270,7 +233,7 @@ export interface DonationDeductionBreakdown {
 }
 
 /**
- * ふるさと納税の試算結果
+ * ふるさと納税試算結果
  */
 export interface DonationResult {
   estimatedDonationLimit: number;
@@ -296,14 +259,14 @@ export interface ComparisonItem {
 }
 
 /**
- * 比較試算の結果
+ * 比較試算結果
  */
 export interface ComparisonResult {
   items: ComparisonItem[];
 }
 
 /**
- * 診断コメント
+ * 診断結果
  */
 export interface DiagnosisResult {
   level: DiagnosisLevel;
@@ -322,4 +285,3 @@ export interface SimulationResult {
   comparison: ComparisonResult;
   diagnosis: DiagnosisResult;
 }
-
