@@ -1,5 +1,7 @@
 // src/components/furusato-tax/SimpleInputForm.tsx
 
+import DependentInputList from "./DependentInputList";
+
 import type { ChangeEvent } from "react";
 
 import type {
@@ -216,20 +218,12 @@ export default function SimpleInputForm({
           </div>
         )}
 
-        <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-800">
-            扶養親族
-          </p>
-
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            扶養親族の追加・削除機能は、後ほど
-            DependentInputListコンポーネントとして実装します。
-          </p>
-
-          <p className="mt-2 text-xs text-slate-500">
-            現在の登録人数：{value.dependents.length}人
-          </p>
-        </div>
+        <DependentInputList
+          value={value.dependents}
+          onChange={(dependents) =>
+            onChange({ dependents })
+          }
+        />
       </section>
 
       <hr className="border-slate-200" />
