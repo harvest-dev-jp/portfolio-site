@@ -56,6 +56,7 @@ export interface BasicDeductionBracket {
  */
 export type SalaryIncomeCalculationMethod =
   | "fixed-deduction"
+  |  "fixed-income"
   | "quarter-round-2.8"
   | "quarter-round-3.2"
   | "rate"
@@ -65,35 +66,18 @@ export type SalaryIncomeCalculationMethod =
  * 給与所得計算の区分。
  */
 export interface SalaryIncomeBracket {
-  /**
-   * 給与収入の最低額。
-   */
   minSalary: number;
-
-  /**
-   * 給与収入の最高額。
-   * 上限なしの場合はnull。
-   */
   maxSalary: number | null;
-
-  /**
-   * 給与所得の計算方式。
-   */
   method: SalaryIncomeCalculationMethod;
 
-  /**
-   * 固定の給与所得控除額。
-   */
   fixedDeduction?: number;
 
   /**
-   * 給与所得を直接計算する場合の乗率。
+   * 給与所得を固定額で設定する特例区分に使用する。
    */
-  incomeRate?: number;
+  fixedIncomeAmount?: number;
 
-  /**
-   * 給与所得を直接計算するときに差し引く金額。
-   */
+  incomeRate?: number;
   incomeSubtraction?: number;
 }
 
@@ -203,20 +187,65 @@ export interface TaxRules2026 {
  * 660万円以上：
  *   通常の速算式を使用する。
  */
+
 export const salaryIncomeBrackets2026: SalaryIncomeBracket[] = [
+  /**
+   * 219万1,000円未満
+   *
+   * 給与所得控除74万円。
+   * 収入が74万円以下の場合は、給与所得は0円となる。
+   */
   {
     minSalary: 0,
-    maxSalary: 1_900_000,
+    maxSalary: 2_190_999,
     method: "fixed-deduction",
     fixedDeduction: 740_000,
   },
+
+  /**
+   * 219万1,000円以上219万3,000円未満
+   */
   {
-    minSalary: 1_900_001,
+    minSalary: 2_191_000,
+    maxSalary: 2_192_999,
+    method: "fixed-income",
+    fixedIncomeAmount: 1_451_000,
+  },
+
+  /**
+   * 219万3,000円以上219万6,000円未満
+   */
+  {
+    minSalary: 2_193_000,
+    maxSalary: 2_195_999,
+    method: "fixed-income",
+    fixedIncomeAmount: 1_453_000,
+  },
+
+  /**
+   * 219万6,000円以上220万円未満
+   */
+  {
+    minSalary: 2_196_000,
+    maxSalary: 2_199_999,
+    method: "fixed-income",
+    fixedIncomeAmount: 1_456_000,
+  },
+
+  /**
+   * 220万円以上360万円未満
+   */
+  {
+    minSalary: 2_200_000,
     maxSalary: 3_599_999,
     method: "quarter-round-2.8",
     incomeRate: 2.8,
     incomeSubtraction: 80_000,
   },
+
+  /**
+   * 360万円以上660万円未満
+   */
   {
     minSalary: 3_600_000,
     maxSalary: 6_599_999,
@@ -224,6 +253,10 @@ export const salaryIncomeBrackets2026: SalaryIncomeBracket[] = [
     incomeRate: 3.2,
     incomeSubtraction: 440_000,
   },
+
+  /**
+   * 660万円以上850万円未満
+   */
   {
     minSalary: 6_600_000,
     maxSalary: 8_499_999,
@@ -231,6 +264,10 @@ export const salaryIncomeBrackets2026: SalaryIncomeBracket[] = [
     incomeRate: 0.9,
     incomeSubtraction: 1_100_000,
   },
+
+  /**
+   * 850万円以上
+   */
   {
     minSalary: 8_500_000,
     maxSalary: null,
@@ -238,6 +275,7 @@ export const salaryIncomeBrackets2026: SalaryIncomeBracket[] = [
     fixedDeduction: 1_950_000,
   },
 ];
+
 
 /**
  * 2026年分の所得税基礎控除。
@@ -247,8 +285,18 @@ export const salaryIncomeBrackets2026: SalaryIncomeBracket[] = [
 export const basicDeductionBrackets2026: BasicDeductionBracket[] = [
   {
     minIncome: 0,
-    maxIncome: 4_890_000,
+    maxIncome: 1_320_000,
     deduction: 1_040_000,
+  },
+  {
+    minIncome: 1_320_001,
+    maxIncome: 3_360_000,
+    deduction: 880_000,
+  },
+  {
+    minIncome: 3_360_001,
+    maxIncome: 4_890_000,
+    deduction: 680_000,
   },
   {
     minIncome: 4_890_001,
