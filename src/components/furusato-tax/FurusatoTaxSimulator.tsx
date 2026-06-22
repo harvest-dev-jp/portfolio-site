@@ -2,11 +2,15 @@
 
 "use client";
 
-import { useState } from "react";
+
+
+import { useMemo, useState } from "react";
 
 import {
   createDefaultSimulatorFormState,
 } from "@/lib/furusato-tax/defaultValues";
+
+import { simulateFurusatoTax } from "@/lib/furusato-tax/simulateFurusatoTax";
 
 import type {
   DetailedInput,
@@ -18,50 +22,64 @@ import type {
 import DetailedInputForm from "./DetailedInputForm";
 import InputModeSelector from "./InputModeSelector";
 import SimpleInputForm from "./SimpleInputForm";
-
-/**
- * 仮の試算結果
- *
- * 計算ロジックを実装するまでは固定値を表示する。
- */
-const temporaryResult = {
-  estimatedDonationLimit: 80_000,
-  safeDonationAmount: 76_000,
-};
-
-
-/**
- * 円単位の金額を、実行環境に依存しない形式で表示する。
- *
- * Intl.NumberFormatの通貨表示は、サーバーとブラウザで
- * 「¥」「￥」が異なる場合があるため使用しない。
- */
-function formatYen(value: number): string {
-  const roundedValue = Math.trunc(value);
-  const formattedValue = roundedValue
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-  return `${formattedValue}円`;
-}
-
-
+import SimulationResultPanel from "./SimulationResultPanel";
 
 export default function FurusatoTaxSimulator() {
   /**
    * かんたん入力・詳細入力を含む、
    * シミュレーター全体の入力状態。
    */
-  const [formState, setFormState] = useState<SimulatorFormState>(
-    createDefaultSimulatorFormState,
-  );
+  const [formState, setFormState] =
+    useState<SimulatorFormState>(
+      createDefaultSimulatorFormState,
+    );
+
+  /**
+   * かんたん入力の内容から試算結果を自動計算する。
+   *
+   * 詳細入力モードの計算処理は未実装なので、
+   * detailedの場合はnullを返す。
+   */
+  const simulation = useMemo(() => {
+    if (formState.mode !== "simple") {
+      return {
+        result: null,
+        error: null,
+      };
+    }
+
+    try {
+      return {
+        result: simulateFurusatoTax(
+          formState.simple,
+        ),
+        error: null,
+      };
+    } catch (error) {
+      console.error(
+        "ふるさと納税の試算中にエラーが発生しました。",
+        error,
+      );
+
+      return {
+        result: null,
+        error:
+          "入力内容を確認してください。試算処理中にエラーが発生しました。",
+      };
+    }
+  }, [
+    formState.mode,
+    formState.simple,
+  ]);
 
   /**
    * 入力モードを切り替える。
    *
    * simpleとdetailedの入力値はそのまま保持する。
    */
-  const handleModeChange = (mode: InputMode) => {
+  const handleModeChange = (
+    mode: InputMode,
+  ) => {
     setFormState((current) => ({
       ...current,
       mode,
@@ -110,7 +128,9 @@ export default function FurusatoTaxSimulator() {
       return;
     }
 
-    setFormState(createDefaultSimulatorFormState());
+    setFormState(
+      createDefaultSimulatorFormState(),
+    );
   };
 
   return (
@@ -145,131 +165,87 @@ export default function FurusatoTaxSimulator() {
         />
       </div>
 
-      {/* 入力フォームと試算結果 */}
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-        {/* 左側：入力フォーム */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                {formState.mode === "simple"
-                  ? "かんたん入力"
-                  : "詳細入力"}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-600">
-                {formState.mode === "simple"
-                  ? "年収や家族構成、各種控除の見込額から試算します。"
-                  : "源泉徴収票の記載内容をもとに試算します。"}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              入力をリセット
-            </button>
-          </div>
-
-          {formState.mode === "simple" ? (
-            <SimpleInputForm
-              value={formState.simple}
-              onChange={handleSimpleInputChange}
-            />
-          ) : (
-            <DetailedInputForm
-              value={formState.detailed}
-              onChange={handleDetailedInputChange}
-            />
-          )}
-        </div>
-
-        {/* 右側：仮の試算結果 */}
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-            <p className="text-sm font-semibold text-emerald-800">
-              寄附上限額の目安
-            </p>
-
-            <p className="mt-2 text-4xl font-bold tracking-tight text-emerald-950">
-              {formatYen(
-                temporaryResult.estimatedDonationLimit,
-              )}
-            </p>
-
-            <p className="mt-3 text-sm leading-6 text-emerald-900">
-              自己負担額を2,000円に収められる寄附上限額の
-              仮表示です。
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
-            <p className="text-sm font-semibold text-sky-800">
-              安全寄附額
-            </p>
-
-            <p className="mt-2 text-3xl font-bold tracking-tight text-sky-950">
-              {formatYen(
-                temporaryResult.safeDonationAmount,
-              )}
-            </p>
-
-            <p className="mt-3 text-sm leading-6 text-sky-900">
-              現在は上限目安の95％を仮の安全寄附額として
-              表示しています。
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-900">
-              現在の入力状況
+      {/* 入力フォーム */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">
+              {formState.mode === "simple"
+                ? "かんたん入力"
+                : "詳細入力"}
             </h2>
 
-            <dl className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-slate-600">入力モード</dt>
-                <dd className="font-medium text-slate-900">
-                  {formState.mode === "simple"
-                    ? "かんたん入力"
-                    : "詳細入力"}
-                </dd>
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-slate-600">対象年度</dt>
-                <dd className="font-medium text-slate-900">
-                  2026年分
-                </dd>
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-slate-600">安全率</dt>
-                <dd className="font-medium text-slate-900">
-                  {Math.round(
-                    (formState.mode === "simple"
-                      ? formState.simple.safetyRate
-                      : formState.detailed.safetyRate) * 100,
-                  )}
-                  ％
-                </dd>
-              </div>
-            </dl>
+            <p className="mt-1 text-sm text-slate-600">
+              {formState.mode === "simple"
+                ? "年収や家族構成、各種控除の見込額から試算します。"
+                : "源泉徴収票の記載内容をもとに試算します。"}
+            </p>
           </div>
 
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          >
+            入力をリセット
+          </button>
+        </div>
+
+        {formState.mode === "simple" ? (
+          <SimpleInputForm
+            value={formState.simple}
+            onChange={
+              handleSimpleInputChange
+            }
+          />
+        ) : (
+          <DetailedInputForm
+            value={formState.detailed}
+            onChange={
+              handleDetailedInputChange
+            }
+          />
+        )}
+      </div>
+
+      {/* 試算結果 */}
+      <div className="mt-10">
+        {formState.mode === "simple" &&
+          simulation.result && (
+            <SimulationResultPanel
+              result={simulation.result}
+            />
+          )}
+
+        {formState.mode === "simple" &&
+          simulation.error && (
+            <div
+              role="alert"
+              className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm leading-6 text-rose-900"
+            >
+              <h2 className="font-bold">
+                試算できませんでした
+              </h2>
+
+              <p className="mt-2">
+                {simulation.error}
+              </p>
+            </div>
+          )}
+
+        {formState.mode === "detailed" && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6">
-            <h2 className="font-bold text-slate-900">
-              次の実装予定
+            <h2 className="text-lg font-bold text-slate-900">
+              詳細入力の計算処理は準備中です
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              2026年分の税制ルールと計算ロジックを追加後、
-              寄附上限額、控除内訳、iDeCo・住宅ローン控除の
-              比較結果を表示します。
+              現在は、かんたん入力モードの試算に対応しています。
+              詳細入力モードは、源泉徴収票の各項目を使用する
+              計算処理を今後追加します。
             </p>
           </div>
-        </aside>
+        )}
       </div>
 
       {/* 免責事項 */}
@@ -282,4 +258,3 @@ export default function FurusatoTaxSimulator() {
     </section>
   );
 }
-
