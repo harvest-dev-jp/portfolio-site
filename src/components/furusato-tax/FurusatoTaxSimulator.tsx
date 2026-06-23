@@ -2,15 +2,16 @@
 
 "use client";
 
-
-
 import { useMemo, useState } from "react";
 
 import {
   createDefaultSimulatorFormState,
 } from "@/lib/furusato-tax/defaultValues";
 
-import { simulateFurusatoTax } from "@/lib/furusato-tax/simulateFurusatoTax";
+import {
+  simulateDetailedFurusatoTax,
+  simulateFurusatoTax,
+} from "@/lib/furusato-tax/simulateFurusatoTax";
 
 import type {
   DetailedInput,
@@ -35,24 +36,22 @@ export default function FurusatoTaxSimulator() {
     );
 
   /**
-   * かんたん入力の内容から試算結果を自動計算する。
-   *
-   * 詳細入力モードの計算処理は未実装なので、
-   * detailedの場合はnullを返す。
+   * 選択中の入力モードに応じて、
+   * ふるさと納税の試算を自動実行する。
    */
   const simulation = useMemo(() => {
-    if (formState.mode !== "simple") {
-      return {
-        result: null,
-        error: null,
-      };
-    }
-
     try {
+      const result =
+        formState.mode === "simple"
+          ? simulateFurusatoTax(
+              formState.simple,
+            )
+          : simulateDetailedFurusatoTax(
+              formState.detailed,
+            );
+
       return {
-        result: simulateFurusatoTax(
-          formState.simple,
-        ),
+        result,
         error: null,
       };
     } catch (error) {
@@ -70,6 +69,7 @@ export default function FurusatoTaxSimulator() {
   }, [
     formState.mode,
     formState.simple,
+    formState.detailed,
   ]);
 
   /**
@@ -210,39 +210,23 @@ export default function FurusatoTaxSimulator() {
 
       {/* 試算結果 */}
       <div className="mt-10">
-        {formState.mode === "simple" &&
-          simulation.result && (
-            <SimulationResultPanel
-              result={simulation.result}
-            />
-          )}
+        {simulation.result && (
+          <SimulationResultPanel
+            result={simulation.result}
+          />
+        )}
 
-        {formState.mode === "simple" &&
-          simulation.error && (
-            <div
-              role="alert"
-              className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm leading-6 text-rose-900"
-            >
-              <h2 className="font-bold">
-                試算できませんでした
-              </h2>
-
-              <p className="mt-2">
-                {simulation.error}
-              </p>
-            </div>
-          )}
-
-        {formState.mode === "detailed" && (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6">
-            <h2 className="text-lg font-bold text-slate-900">
-              詳細入力の計算処理は準備中です
+        {simulation.error && (
+          <div
+            role="alert"
+            className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm leading-6 text-rose-900"
+          >
+            <h2 className="font-bold">
+              試算できませんでした
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              現在は、かんたん入力モードの試算に対応しています。
-              詳細入力モードは、源泉徴収票の各項目を使用する
-              計算処理を今後追加します。
+            <p className="mt-2">
+              {simulation.error}
             </p>
           </div>
         )}

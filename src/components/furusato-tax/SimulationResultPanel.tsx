@@ -385,6 +385,18 @@ export default function SimulationResultPanel({
               )}
             </dd>
           </div>
+          <div className="flex justify-between gap-4 rounded-xl bg-white p-3">
+            <dt className="text-slate-600">
+              住民税の住宅ローン控除
+            </dt>
+
+            <dd className="font-semibold text-slate-900">
+              {formatYen(
+                residentTax
+                  .housingLoanTaxCreditApplied,
+              )}
+            </dd>
+          </div>
         </dl>
       </details>
     </section>

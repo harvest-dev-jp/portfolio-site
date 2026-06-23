@@ -217,10 +217,26 @@ export interface ResidentTaxResult {
   incomeRate: number;
 
   incomeBasedTaxBeforeCredits: number;
+
+  /**
+   * 所得税と住民税の人的控除差を調整する控除。
+   */
   adjustmentDeduction: number;
+
+  /**
+   * 所得税から控除しきれず、
+   * 住民税から控除した住宅ローン控除額。
+   */
+  housingLoanTaxCreditApplied: number;
+
+  /**
+   * その他の住民税税額控除。
+   */
   otherTaxCredits: number;
+
   incomeBasedTaxAfterCredits: number;
 }
+
 
 /**
  * ふるさと納税控除の内訳

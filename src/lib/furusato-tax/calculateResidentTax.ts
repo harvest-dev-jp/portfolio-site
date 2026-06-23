@@ -2,6 +2,7 @@
 
 import type {
   IncomeDeductionBreakdown,
+  IncomeTaxResult,
   NormalizedTaxInput,
   ResidentTaxResult,
 } from "./types";
@@ -11,10 +12,19 @@ import { taxRules2026 } from "./rules/2026";
 /**
  * 住民税の基礎控除額。
  *
- * 現段階では一般的な基礎控除額43万円として扱う。
- * 合計所得金額が高い場合の逓減は、後続工程で対応する。
+ * 現段階では一般的な43万円として扱う。
  */
 const RESIDENT_TAX_BASIC_DEDUCTION = 430_000;
+
+/**
+ * 2022年以降入居の場合の一般的な
+ * 住民税住宅ローン控除限度額。
+ *
+ * 所得税の課税総所得金額等の5％、
+ * かつ最高97,500円。
+ */
+const RESIDENT_HOUSING_LOAN_CREDIT_RATE = 0.05;
+const RESIDENT_HOUSING_LOAN_CREDIT_MAX = 97_500;
 
 /**
  * 0以上の整数へ補正する。
@@ -32,10 +42,13 @@ function normalizeNonNegativeInteger(
 /**
  * 1,000円未満を切り捨てる。
  */
-function floorToThousand(value: number): number {
+function floorToThousand(
+  value: number,
+): number {
   return (
     Math.floor(
-      normalizeNonNegativeInteger(value) / 1_000,
+      normalizeNonNegativeInteger(value) /
+        1_000,
     ) * 1_000
   );
 }
@@ -43,13 +56,8 @@ function floorToThousand(value: number): number {
 /**
  * 住民税用の所得控除合計を概算する。
  *
- * 所得税の所得控除合計から所得税の基礎控除を除き、
+ * 所得税用の基礎控除を除き、
  * 住民税の基礎控除43万円へ置き換える。
- *
- * 注意：
- * 配偶者控除・扶養控除・障害者控除・生命保険料控除なども
- * 本来は所得税と住民税で金額が異なる。
- * 現段階では、それらは所得税用の控除額を流用する。
  */
 function calculateEstimatedResidentTaxDeductions(
   deductions: IncomeDeductionBreakdown,
@@ -78,21 +86,70 @@ function calculateEstimatedResidentTaxDeductions(
 }
 
 /**
+ * 住民税から控除する住宅ローン控除額を概算する。
+ *
+ * 次のうち最も小さい額を適用する。
+ *
+ * 1. 所得税から引ききれなかった住宅ローン控除額
+ * 2. 所得税の課税所得×5％
+ * 3. 97,500円
+ * 4. 控除可能な住民税所得割額
+ */
+function calculateResidentHousingLoanCredit(
+  input: NormalizedTaxInput,
+  incomeTax: IncomeTaxResult,
+  availableResidentTax: number,
+): number {
+  const housingLoanTaxCredit =
+    normalizeNonNegativeInteger(
+      input.housingLoanTaxCredit,
+    );
+
+  /**
+   * 所得税で実際に使用した住宅ローン控除を
+   * 差し引き、未使用額を求める。
+   */
+  const unusedHousingLoanTaxCredit =
+    Math.max(
+      0,
+      housingLoanTaxCredit -
+        normalizeNonNegativeInteger(
+          incomeTax
+            .housingLoanTaxCreditApplied,
+        ),
+    );
+
+  /**
+   * 所得税の課税総所得金額等の5％。
+   *
+   * 本アプリでは、所得税の課税所得を
+   * 課税総所得金額等の概算値として利用する。
+   */
+  const taxableIncomeLimit =
+    Math.floor(
+      normalizeNonNegativeInteger(
+        incomeTax.taxableIncome,
+      ) *
+        RESIDENT_HOUSING_LOAN_CREDIT_RATE,
+    );
+
+  return Math.min(
+    unusedHousingLoanTaxCredit,
+    taxableIncomeLimit,
+    RESIDENT_HOUSING_LOAN_CREDIT_MAX,
+    normalizeNonNegativeInteger(
+      availableResidentTax,
+    ),
+  );
+}
+
+/**
  * 住民税所得割額を概算する。
- *
- * 計算順序：
- *
- * 1. 給与所得から住民税用所得控除を差し引く
- * 2. 課税所得の1,000円未満を切り捨てる
- * 3. 標準税率10％を適用する
- * 4. 調整控除・その他税額控除を差し引く
- *
- * 現段階では調整控除を0円としているため、
- * この結果はふるさと納税上限計算用の概算値となる。
  */
 export function calculateResidentTax(
   input: NormalizedTaxInput,
   deductions: IncomeDeductionBreakdown,
+  incomeTax: IncomeTaxResult,
 ): ResidentTaxResult {
   const salaryIncomeAmount =
     normalizeNonNegativeInteger(
@@ -106,9 +163,6 @@ export function calculateResidentTax(
 
   /**
    * 住民税の課税所得。
-   *
-   * 0円未満にならないよう補正し、
-   * 1,000円未満を切り捨てる。
    */
   const taxableIncome =
     floorToThousand(
@@ -121,8 +175,6 @@ export function calculateResidentTax(
 
   /**
    * 税額控除前の住民税所得割額。
-   *
-   * 標準税率は市民税・県民税を合わせて10％。
    */
   const incomeBasedTaxBeforeCredits =
     normalizeNonNegativeInteger(
@@ -130,17 +182,34 @@ export function calculateResidentTax(
     );
 
   /**
-   * 所得税と住民税の人的控除差を調整する控除。
+   * 人的控除差の調整控除。
    *
-   * 現段階では未実装のため0円。
+   * 現段階では未実装。
    */
   const adjustmentDeduction = 0;
 
+  const availableTaxAfterAdjustment =
+    Math.max(
+      0,
+      incomeBasedTaxBeforeCredits -
+        adjustmentDeduction,
+    );
+
   /**
-   * 住民税から差し引くその他の税額控除。
+   * 所得税から控除しきれなかった
+   * 住宅ローン控除を住民税へ適用する。
+   */
+  const housingLoanTaxCreditApplied =
+    calculateResidentHousingLoanCredit(
+      input,
+      incomeTax,
+      availableTaxAfterAdjustment,
+    );
+
+  /**
+   * その他の住民税税額控除。
    *
-   * 現在の入力値は所得税用の税額控除として扱っているため、
-   * 二重控除を避けて現段階では0円とする。
+   * 現段階では未実装。
    */
   const otherTaxCredits = 0;
 
@@ -149,6 +218,7 @@ export function calculateResidentTax(
       0,
       incomeBasedTaxBeforeCredits -
         adjustmentDeduction -
+        housingLoanTaxCreditApplied -
         otherTaxCredits,
     );
 
@@ -157,6 +227,7 @@ export function calculateResidentTax(
     incomeRate,
     incomeBasedTaxBeforeCredits,
     adjustmentDeduction,
+    housingLoanTaxCreditApplied,
     otherTaxCredits,
     incomeBasedTaxAfterCredits,
   };

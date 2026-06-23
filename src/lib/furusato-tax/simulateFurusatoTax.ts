@@ -3,6 +3,7 @@
 import type {
   ComparisonItem,
   ComparisonResult,
+  DetailedInput,
   DiagnosisResult,
   DonationResult,
   NormalizedTaxInput,
@@ -11,6 +12,7 @@ import type {
 } from "./types";
 
 import { normalizeSimpleInput } from "./normalizeSimpleInput";
+import { normalizeDetailedInput } from "./normalizeDetailedInput";
 import { calculateIncomeDeductions } from "./calculateIncomeDeductions";
 import { calculateIncomeTax } from "./calculateIncomeTax";
 import { calculateResidentTax } from "./calculateResidentTax";
@@ -30,15 +32,15 @@ function normalizeNonNegativeInteger(
 }
 
 /**
- * 指定した条件で寄附上限額を計算する。
- *
- * 比較シミュレーションで使用する内部関数。
+ * NormalizedTaxInputから主要な試算結果を計算する。
  */
-function calculateDonationForNormalizedInput(
+function calculateCoreResult(
   normalizedInput: NormalizedTaxInput,
-): DonationResult {
+) {
   const incomeDeductions =
-    calculateIncomeDeductions(normalizedInput);
+    calculateIncomeDeductions(
+      normalizedInput,
+    );
 
   const incomeTax =
     calculateIncomeTax(
@@ -47,16 +49,36 @@ function calculateDonationForNormalizedInput(
     );
 
   const residentTax =
-    calculateResidentTax(
+  calculateResidentTax(
+    normalizedInput,
+    incomeDeductions,
+    incomeTax,
+  );
+
+  const donation =
+    calculateDonationLimit(
       normalizedInput,
-      incomeDeductions,
+      incomeTax,
+      residentTax,
     );
 
-  return calculateDonationLimit(
-    normalizedInput,
+  return {
+    incomeDeductions,
     incomeTax,
     residentTax,
-  );
+    donation,
+  };
+}
+
+/**
+ * 比較試算で寄附上限額だけを計算する。
+ */
+function calculateDonationForNormalizedInput(
+  normalizedInput: NormalizedTaxInput,
+): DonationResult {
+  return calculateCoreResult(
+    normalizedInput,
+  ).donation;
 }
 
 /**
@@ -68,37 +90,34 @@ function createComparisonItem(
   donationLimit: number,
   basicDonationLimit: number,
 ): ComparisonItem {
+  const normalizedDonationLimit =
+    normalizeNonNegativeInteger(
+      donationLimit,
+    );
+
+  const normalizedBasicDonationLimit =
+    normalizeNonNegativeInteger(
+      basicDonationLimit,
+    );
+
   return {
     scenario,
     label,
     donationLimit:
-      normalizeNonNegativeInteger(
-        donationLimit,
-      ),
+      normalizedDonationLimit,
+
+    /**
+     * 差額はマイナスになる場合があるため、
+     * 0以上への補正は行わない。
+     */
     differenceFromBasic:
-      normalizeNonNegativeInteger(
-        donationLimit,
-      ) -
-      normalizeNonNegativeInteger(
-        basicDonationLimit,
-      ),
+      normalizedDonationLimit -
+      normalizedBasicDonationLimit,
   };
 }
 
 /**
  * iDeCo・住宅ローン控除の有無による比較結果を作成する。
- *
- * basic:
- *   iDeCoなし・住宅ローン控除なし
- *
- * with-ideco:
- *   iDeCoあり・住宅ローン控除なし
- *
- * with-housing-credit:
- *   iDeCoなし・住宅ローン控除あり
- *
- * with-all:
- *   iDeCoあり・住宅ローン控除あり
  */
 function calculateComparison(
   normalizedInput: NormalizedTaxInput,
@@ -207,7 +226,8 @@ function createDiagnosis(
       level: "safe",
       title: "寄附予定額を入力してください",
       message:
-        `安全寄附額の目安は${safeDonationAmount.toLocaleString(
+        `安全寄附額の目安は` +
+        `${safeDonationAmount.toLocaleString(
           "ja-JP",
         )}円です。`,
     };
@@ -233,8 +253,8 @@ function createDiagnosis(
       level: "caution",
       title: "上限額に近づいています",
       message:
-        `概算上限額以内ですが、安全率を考慮した目安を超えています。` +
-        `収入や控除額の変動に注意してください。`,
+        "概算上限額以内ですが、安全率を考慮した目安を超えています。" +
+        "収入や控除額の変動に注意してください。",
     };
   }
 
@@ -250,66 +270,31 @@ function createDiagnosis(
 }
 
 /**
- * かんたん入力によるふるさと納税シミュレーションを実行する。
+ * 正規化済み入力からシミュレーション全体を実行する。
+ *
+ * かんたん入力と詳細入力で共通利用する。
  */
-export function simulateFurusatoTax(
-  input: SimpleInput,
+function simulateNormalizedInput(
+  normalizedInput: NormalizedTaxInput,
 ): SimulationResult {
-  /**
-   * 画面入力を共通計算形式へ変換する。
-   */
-  const normalizedInput =
-    normalizeSimpleInput(input);
+  const {
+    incomeDeductions,
+    incomeTax,
+    residentTax,
+    donation,
+  } = calculateCoreResult(
+    normalizedInput,
+  );
 
-  /**
-   * 所得控除の内訳と合計を計算する。
-   */
-  const incomeDeductions =
-    calculateIncomeDeductions(
-      normalizedInput,
-    );
-
-  /**
-   * 所得税を計算する。
-   */
-  const incomeTax =
-    calculateIncomeTax(
-      normalizedInput,
-      incomeDeductions,
-    );
-
-  /**
-   * 住民税所得割額を概算する。
-   */
-  const residentTax =
-    calculateResidentTax(
-      normalizedInput,
-      incomeDeductions,
-    );
-
-  /**
-   * 寄附上限額と控除内訳を計算する。
-   */
-  const donation =
-    calculateDonationLimit(
-      normalizedInput,
-      incomeTax,
-      residentTax,
-    );
-
-  /**
-   * iDeCo・住宅ローン控除の影響を比較する。
-   */
   const comparison =
     calculateComparison(
       normalizedInput,
     );
 
-  /**
-   * 寄附予定額について診断する。
-   */
   const diagnosis =
-    createDiagnosis(donation);
+    createDiagnosis(
+      donation,
+    );
 
   return {
     incomeDeductions,
@@ -319,4 +304,39 @@ export function simulateFurusatoTax(
     comparison,
     diagnosis,
   };
+}
+
+/**
+ * かんたん入力によるシミュレーションを実行する。
+ *
+ * 既存コードとの互換性を保つため、
+ * 関数名はそのまま維持する。
+ */
+export function simulateFurusatoTax(
+  input: SimpleInput,
+): SimulationResult {
+  const normalizedInput =
+    normalizeSimpleInput(
+      input,
+    );
+
+  return simulateNormalizedInput(
+    normalizedInput,
+  );
+}
+
+/**
+ * 詳細入力によるシミュレーションを実行する。
+ */
+export function simulateDetailedFurusatoTax(
+  input: DetailedInput,
+): SimulationResult {
+  const normalizedInput =
+    normalizeDetailedInput(
+      input,
+    );
+
+  return simulateNormalizedInput(
+    normalizedInput,
+  );
 }
