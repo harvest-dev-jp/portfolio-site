@@ -1,8 +1,12 @@
 // src/components/furusato-tax/SimpleInputForm.tsx
-
 import DependentInputList from "./DependentInputList";
 
-import type { ChangeEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
 
 import type {
   FilingMethod,
@@ -32,6 +36,13 @@ interface AgeInputProps {
  *
  * 金額入力ではないためMoneyInputとは分離する。
  */
+
+/**
+ * 年齢入力用コンポーネント。
+ *
+ * 入力中は文字列として保持し、
+ * blurまたはEnter時に年齢を確定する。
+ */
 function AgeInput({
   id,
   label,
@@ -41,21 +52,119 @@ function AgeInput({
   max = 120,
   description,
 }: AgeInputProps) {
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const nextValue = Number(event.target.value);
+  const [text, setText] = useState(
+    String(value),
+  );
 
-    if (!Number.isFinite(nextValue)) {
+  const [isFocused, setIsFocused] =
+    useState(false);
+
+  /**
+   * 親側で値が変更された場合に同期する。
+   *
+   * 入力中はユーザー操作を優先する。
+   */
+  useEffect(() => {
+    if (!isFocused) {
+      setText(String(value));
+    }
+  }, [value, isFocused]);
+
+  /**
+   * 全角数字を半角数字へ変換し、
+   * 数字以外を除去する。
+   */
+  const sanitizeAgeText = (
+    input: string,
+  ): string => {
+    const halfWidthValue =
+      input.replace(
+        /[０-９]/g,
+        (character) =>
+          String.fromCharCode(
+            character.charCodeAt(0) -
+              0xfee0,
+          ),
+      );
+
+    return halfWidthValue.replace(
+      /\D/g,
+      "",
+    );
+  };
+
+  /**
+   * 入力値を確定する。
+   */
+  const commitValue = () => {
+    const sanitizedText =
+      sanitizeAgeText(text);
+
+    /**
+     * 空欄の場合は元の値へ戻す。
+     *
+     * 18へ強制変更しないことで、
+     * 入力途中の不自然な挙動を防ぐ。
+     */
+    if (sanitizedText === "") {
+      setText(String(value));
       return;
     }
 
-    onChange(
+    const parsedValue =
+      Number(sanitizedText);
+
+    if (!Number.isFinite(parsedValue)) {
+      setText(String(value));
+      return;
+    }
+
+    const nextValue =
       Math.min(
         max,
-        Math.max(min, Math.trunc(nextValue)),
-      ),
-    );
+        Math.max(
+          min,
+          Math.trunc(parsedValue),
+        ),
+      );
+
+    onChange(nextValue);
+    setText(String(nextValue));
+  };
+
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const nextText =
+      sanitizeAgeText(
+        event.target.value,
+      );
+
+    setText(nextText);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    commitValue();
+  };
+
+  const handleKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setText(String(value));
+      event.currentTarget.blur();
+    }
   };
 
   return (
@@ -76,13 +185,16 @@ function AgeInput({
       <div className="relative mt-2">
         <input
           id={id}
-          type="number"
+          type="text"
           inputMode="numeric"
-          value={value}
-          min={min}
-          max={max}
-          step={1}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          value={text}
           onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           className={[
             "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5",
             "pr-12 text-right text-slate-900 shadow-sm outline-none transition",
@@ -97,6 +209,7 @@ function AgeInput({
     </div>
   );
 }
+
 
 export default function SimpleInputForm({
   value,
