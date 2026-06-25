@@ -1,5 +1,7 @@
 // src/components/furusato-tax/DependentInputList.tsx
 
+import AgeSelect from "./AgeSelect";
+
 import type {
   ChangeEvent,
 } from "react";
@@ -106,24 +108,6 @@ export default function DependentInputList({
         (dependent) => dependent.id !== id,
       ),
     );
-  };
-
-  const handleAgeChange = (
-    id: string,
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const parsedValue = Number(event.target.value);
-
-    if (!Number.isFinite(parsedValue)) {
-      return;
-    }
-
-    const age = Math.min(
-      120,
-      Math.max(0, Math.trunc(parsedValue)),
-    );
-
-    handleUpdate(id, { age });
   };
 
   return (
@@ -252,50 +236,20 @@ export default function DependentInputList({
                   </div>
 
                   {/* 年齢 */}
-                  <div>
-                    <label
-                      htmlFor={ageId}
-                      className="block text-sm font-semibold text-slate-800"
-                    >
-                      年齢
-                    </label>
-
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      2026年12月31日時点の年齢です。
-                    </p>
-
-                    <div className="relative mt-2">
-                      <input
-                        id={ageId}
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        max={120}
-                        step={1}
-                        value={dependent.age}
-                        onChange={(event) =>
-                          handleAgeChange(
-                            dependent.id,
-                            event,
-                          )
-                        }
-                        className={[
-                          "w-full rounded-lg border",
-                          "border-slate-300 bg-white",
-                          "px-3 py-2.5 pr-12",
-                          "text-right text-slate-900",
-                          "shadow-sm outline-none transition",
-                          "focus:border-emerald-500",
-                          "focus:ring-2 focus:ring-emerald-200",
-                        ].join(" ")}
-                      />
-
-                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
-                        歳
-                      </span>
-                    </div>
-                  </div>
-
+                  <AgeSelect
+                    id={ageId}
+                    label="年齢"
+                    value={dependent.age}
+                    onChange={(age) =>
+                      handleUpdate(
+                        dependent.id,
+                        { age },
+                      )
+                    }
+                    min={0}
+                    max={120}
+                    description="2026年12月31日時点の年齢を選択します。"
+                  />
                   {/* 同居区分 */}
                   <fieldset>
                     <legend

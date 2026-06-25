@@ -1,12 +1,7 @@
 // src/components/furusato-tax/SimpleInputForm.tsx
 import DependentInputList from "./DependentInputList";
 
-import {
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type KeyboardEvent,
-} from "react";
+import AgeSelect from "./AgeSelect";
 
 import type {
   FilingMethod,
@@ -20,196 +15,6 @@ interface SimpleInputFormProps {
   value: SimpleInput;
   onChange: (updates: Partial<SimpleInput>) => void;
 }
-
-interface AgeInputProps {
-  id: string;
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  min?: number;
-  max?: number;
-  description?: string;
-}
-
-/**
- * 年齢入力用コンポーネント。
- *
- * 金額入力ではないためMoneyInputとは分離する。
- */
-
-/**
- * 年齢入力用コンポーネント。
- *
- * 入力中は文字列として保持し、
- * blurまたはEnter時に年齢を確定する。
- */
-function AgeInput({
-  id,
-  label,
-  value,
-  onChange,
-  min = 18,
-  max = 120,
-  description,
-}: AgeInputProps) {
-  const [text, setText] = useState(
-    String(value),
-  );
-
-  const [isFocused, setIsFocused] =
-    useState(false);
-
-  /**
-   * 親側で値が変更された場合に同期する。
-   *
-   * 入力中はユーザー操作を優先する。
-   */
-  useEffect(() => {
-    if (!isFocused) {
-      setText(String(value));
-    }
-  }, [value, isFocused]);
-
-  /**
-   * 全角数字を半角数字へ変換し、
-   * 数字以外を除去する。
-   */
-  const sanitizeAgeText = (
-    input: string,
-  ): string => {
-    const halfWidthValue =
-      input.replace(
-        /[０-９]/g,
-        (character) =>
-          String.fromCharCode(
-            character.charCodeAt(0) -
-              0xfee0,
-          ),
-      );
-
-    return halfWidthValue.replace(
-      /\D/g,
-      "",
-    );
-  };
-
-  /**
-   * 入力値を確定する。
-   */
-  const commitValue = () => {
-    const sanitizedText =
-      sanitizeAgeText(text);
-
-    /**
-     * 空欄の場合は元の値へ戻す。
-     *
-     * 18へ強制変更しないことで、
-     * 入力途中の不自然な挙動を防ぐ。
-     */
-    if (sanitizedText === "") {
-      setText(String(value));
-      return;
-    }
-
-    const parsedValue =
-      Number(sanitizedText);
-
-    if (!Number.isFinite(parsedValue)) {
-      setText(String(value));
-      return;
-    }
-
-    const nextValue =
-      Math.min(
-        max,
-        Math.max(
-          min,
-          Math.trunc(parsedValue),
-        ),
-      );
-
-    onChange(nextValue);
-    setText(String(nextValue));
-  };
-
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const nextText =
-      sanitizeAgeText(
-        event.target.value,
-      );
-
-    setText(nextText);
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    commitValue();
-  };
-
-  const handleKeyDown = (
-    event: KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      event.currentTarget.blur();
-    }
-
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setText(String(value));
-      event.currentTarget.blur();
-    }
-  };
-
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-semibold text-slate-800"
-      >
-        {label}
-      </label>
-
-      {description && (
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          {description}
-        </p>
-      )}
-
-      <div className="relative mt-2">
-        <input
-          id={id}
-          type="text"
-          inputMode="numeric"
-          autoComplete="off"
-          autoCorrect="off"
-          spellCheck={false}
-          value={text}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className={[
-            "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5",
-            "pr-12 text-right text-slate-900 shadow-sm outline-none transition",
-            "focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200",
-          ].join(" ")}
-        />
-
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
-          歳
-        </span>
-      </div>
-    </div>
-  );
-}
-
 
 export default function SimpleInputForm({
   value,
@@ -256,7 +61,7 @@ export default function SimpleInputForm({
             required
           />
 
-          <AgeInput
+          <AgeSelect
             id="simple-taxpayer-age"
             label="本人の年齢"
             value={value.taxpayerAge}
@@ -265,7 +70,7 @@ export default function SimpleInputForm({
             }
             min={18}
             max={120}
-            description="2026年12月31日時点の年齢を入力します。"
+            description="2026年12月31日時点の年齢を選択します。"
           />
         </div>
 
