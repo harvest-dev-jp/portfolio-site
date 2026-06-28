@@ -147,5 +147,17 @@ export function normalizeDetailedInput(
 
     safetyRate:
       input.safetyRate,
+
+    residentTaxIncomeDeductionTotal:
+    Math.max(
+      0,
+      totalIncomeDeduction -
+        normalizeNonNegativeInteger(
+          input.basicDeduction,
+        ) +
+        430_000,
+    ) +
+    additionalMedicalExpenseDeduction +
+    additionalIncomeDeduction,
   };
 }

@@ -168,6 +168,9 @@ export interface NormalizedTaxInput {
   medicalExpenseDeduction: number;
   otherIncomeDeduction: number;
 
+  // 住民税用所得控除
+  residentTaxIncomeDeductionTotal: number;
+
   // 税額控除
   housingLoanTaxCredit: number;
   otherTaxCredit: number;

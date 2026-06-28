@@ -53,37 +53,7 @@ function floorToThousand(
   );
 }
 
-/**
- * 住民税用の所得控除合計を概算する。
- *
- * 所得税用の基礎控除を除き、
- * 住民税の基礎控除43万円へ置き換える。
- */
-function calculateEstimatedResidentTaxDeductions(
-  deductions: IncomeDeductionBreakdown,
-): number {
-  const incomeTaxDeductionTotal =
-    normalizeNonNegativeInteger(
-      deductions.total,
-    );
 
-  const incomeTaxBasicDeduction =
-    normalizeNonNegativeInteger(
-      deductions.basic,
-    );
-
-  const deductionsExceptBasic =
-    Math.max(
-      0,
-      incomeTaxDeductionTotal -
-        incomeTaxBasicDeduction,
-    );
-
-  return (
-    deductionsExceptBasic +
-    RESIDENT_TAX_BASIC_DEDUCTION
-  );
-}
 
 /**
  * 住民税から控除する住宅ローン控除額を概算する。
@@ -157,8 +127,8 @@ export function calculateResidentTax(
     );
 
   const estimatedResidentTaxDeductions =
-    calculateEstimatedResidentTaxDeductions(
-      deductions,
+    normalizeNonNegativeInteger(
+      input.residentTaxIncomeDeductionTotal,
     );
 
   /**
