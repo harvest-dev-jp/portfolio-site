@@ -81,6 +81,28 @@ export function normalizeDetailedInput(
 
   void includedIdecoContribution;
 
+const incomeTaxBasicDeduction =
+  normalizeNonNegativeInteger(
+    input.basicDeduction,
+  );
+
+const residentTaxBasicDeduction =
+  salaryIncomeAmount <= 24_000_000
+    ? 430_000
+    : salaryIncomeAmount <= 24_500_000
+      ? 290_000
+      : salaryIncomeAmount <= 25_000_000
+        ? 150_000
+        : 0;
+
+const residentOtherDeduction =
+  Math.max(
+    0,
+    totalIncomeDeduction -
+      incomeTaxBasicDeduction -
+      includedIdecoContribution,
+  );
+
   return {
     taxYear: input.taxYear,
     sourceMode: "detailed",
@@ -159,5 +181,28 @@ export function normalizeDetailedInput(
     ) +
     additionalMedicalExpenseDeduction +
     additionalIncomeDeduction,
+
+    residentTaxDeductions: {
+      basic: residentTaxBasicDeduction,
+      socialInsurance: 0,
+      ideco: includedIdecoContribution,
+      spouse: 0,
+      dependent: 0,
+      disability: 0,
+      lifeInsurance: 0,
+      earthquakeInsurance: 0,
+      medicalExpense:
+        additionalMedicalExpenseDeduction,
+      other:
+        residentOtherDeduction +
+        additionalIncomeDeduction,
+      total:
+        residentTaxBasicDeduction +
+        includedIdecoContribution +
+        residentOtherDeduction +
+        additionalMedicalExpenseDeduction +
+        additionalIncomeDeduction,
+    },
+
   };
 }

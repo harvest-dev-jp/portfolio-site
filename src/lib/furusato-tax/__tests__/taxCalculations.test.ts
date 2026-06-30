@@ -28,7 +28,7 @@ function createNormalizedInput(
 
     grossSalaryIncome: 6_243_900,
     salaryIncomeAmount: 4_552_000,
-
+    residentTaxIncomeDeductionTotal: 2_685_000,
     basicDeduction: 0,
     socialInsuranceDeduction: 0,
     idecoDeduction: 276_000,
@@ -55,6 +55,21 @@ function createNormalizedInput(
     safetyRate: 0.95,
 
     ...updates,
+
+    residentTaxDeductions: {
+      basic: 430_000,
+      socialInsurance: 0,
+      ideco: 276_000,
+      spouse: 0,
+      dependent: 0,
+      disability: 0,
+      lifeInsurance: 0,
+      earthquakeInsurance: 0,
+      medicalExpense: 0,
+      other: 1_979_000,
+
+      total: 2_685_000,
+    },
   };
 }
 

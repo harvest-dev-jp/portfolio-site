@@ -2,27 +2,11 @@
 
 import type {
   Dependent,
+  ResidentTaxDeductionBreakdown,
   SimpleInput,
 } from "./types";
 
 import { calculateSalaryIncome } from "./calculateSalaryIncome";
-
-/**
- * 住民税用所得控除の計算結果。
- */
-export interface ResidentTaxDeductionResult {
-  basic: number;
-  socialInsurance: number;
-  ideco: number;
-  spouse: number;
-  dependent: number;
-  disability: number;
-  lifeInsurance: number;
-  earthquakeInsurance: number;
-  medicalExpense: number;
-  other: number;
-  total: number;
-}
 
 function normalizeNonNegativeInteger(
   value: number,
@@ -35,20 +19,25 @@ function normalizeNonNegativeInteger(
 }
 
 /**
- * 住民税の基礎控除。
+ * 住民税の基礎控除を計算する。
  */
 function calculateResidentBasicDeduction(
   totalIncomeAmount: number,
 ): number {
-  if (totalIncomeAmount <= 24_000_000) {
+  const income =
+    normalizeNonNegativeInteger(
+      totalIncomeAmount,
+    );
+
+  if (income <= 24_000_000) {
     return 430_000;
   }
 
-  if (totalIncomeAmount <= 24_500_000) {
+  if (income <= 24_500_000) {
     return 290_000;
   }
 
-  if (totalIncomeAmount <= 25_000_000) {
+  if (income <= 25_000_000) {
     return 150_000;
   }
 
@@ -58,7 +47,7 @@ function calculateResidentBasicDeduction(
 /**
  * 納税者本人の所得区分。
  */
-function getTaxpayerCategory(
+function getTaxpayerIncomeCategory(
   totalIncomeAmount: number,
 ): 0 | 1 | 2 | null {
   if (totalIncomeAmount <= 9_000_000) {
@@ -77,7 +66,7 @@ function getTaxpayerCategory(
 }
 
 /**
- * 住民税の配偶者控除・配偶者特別控除。
+ * 住民税の配偶者控除・配偶者特別控除を計算する。
  */
 function calculateResidentSpouseDeduction(
   input: SimpleInput,
@@ -88,7 +77,7 @@ function calculateResidentSpouseDeduction(
   }
 
   const taxpayerCategory =
-    getTaxpayerCategory(
+    getTaxpayerIncomeCategory(
       taxpayerTotalIncomeAmount,
     );
 
@@ -98,13 +87,14 @@ function calculateResidentSpouseDeduction(
 
   const spouseTotalIncomeAmount =
     calculateSalaryIncome(
-      normalizeNonNegativeInteger(
-        input.spouseSalaryIncome,
-      ),
+      input.spouseSalaryIncome,
     ).salaryIncomeAmount;
 
   /**
-   * 配偶者控除。
+   * 一般の控除対象配偶者。
+   *
+   * 現在の画面には配偶者年齢がないため、
+   * 老人控除対象配偶者は未対応。
    */
   if (spouseTotalIncomeAmount <= 580_000) {
     return [330_000, 220_000, 110_000][
@@ -219,11 +209,6 @@ function calculateResidentDisabilityDeduction(
       return 260_000;
 
     case "special":
-      /**
-       * 同居特別障害者：
-       * 特別障害者控除30万円
-       * ＋同居特別障害者加算23万円
-       */
       return dependent.livesTogether
         ? 530_000
         : 300_000;
@@ -240,12 +225,12 @@ function calculateResidentDisabilityDeduction(
 }
 
 /**
- * かんたん入力から住民税用の所得控除を計算する。
+ * かんたん入力から住民税用所得控除を計算する。
  */
 export function calculateResidentTaxDeductions(
   input: SimpleInput,
   totalIncomeAmount: number,
-): ResidentTaxDeductionResult {
+): ResidentTaxDeductionBreakdown {
   const basic =
     calculateResidentBasicDeduction(
       totalIncomeAmount,
@@ -288,9 +273,11 @@ export function calculateResidentTaxDeductions(
     );
 
   /**
-   * 生命保険料・地震保険料控除は、
-   * 支払保険料からの再計算に必要な情報がないため、
-   * 現段階では入力された控除額を使用する。
+   * 現在の入力項目は「所得税用の控除額」なので、
+   * 生命保険料・地震保険料控除は暫定的に同額を使用する。
+   *
+   * 将来、支払保険料を入力する方式へ変えれば、
+   * 住民税用控除を別計算できる。
    */
   const lifeInsurance =
     normalizeNonNegativeInteger(

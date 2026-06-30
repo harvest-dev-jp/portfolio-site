@@ -12,6 +12,7 @@ import { calculateDependentDeductions } from "./calculateDependentDeductions";
 import { calculateSpouseDeduction } from "./calculateSpouseDeduction";
 import { calculateResidentTaxDeductions } from "./calculateResidentTaxDeductions";
 
+
 /**
  * 0以上の整数へ補正する。
  */
@@ -163,5 +164,7 @@ export function normalizeSimpleInput(
 
     residentTaxIncomeDeductionTotal:
       residentTaxDeductions.total,
+
+    residentTaxDeductions,
   };
 }

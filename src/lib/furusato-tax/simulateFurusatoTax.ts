@@ -124,8 +124,21 @@ function calculateComparison(
 ): ComparisonResult {
   const basicInput: NormalizedTaxInput = {
     ...normalizedInput,
+
     idecoDeduction: 0,
     housingLoanTaxCredit: 0,
+
+    residentTaxDeductions: {
+      ...normalizedInput.residentTaxDeductions,
+
+      ideco: 0,
+
+      total:
+        normalizedInput
+          .residentTaxDeductions.total -
+        normalizedInput
+          .residentTaxDeductions.ideco,
+    },
   };
 
   const withIdecoInput: NormalizedTaxInput = {
@@ -134,9 +147,22 @@ function calculateComparison(
   };
 
   const withHousingCreditInput:
-    NormalizedTaxInput = {
+  NormalizedTaxInput = {
       ...normalizedInput,
+
       idecoDeduction: 0,
+
+      residentTaxDeductions: {
+        ...normalizedInput.residentTaxDeductions,
+
+        ideco: 0,
+
+        total:
+          normalizedInput
+            .residentTaxDeductions.total -
+          normalizedInput
+            .residentTaxDeductions.ideco,
+      },
     };
 
   const withAllInput: NormalizedTaxInput = {

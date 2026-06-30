@@ -128,8 +128,9 @@ export function calculateResidentTax(
 
   const estimatedResidentTaxDeductions =
     normalizeNonNegativeInteger(
-      input.residentTaxIncomeDeductionTotal,
+      input.residentTaxDeductions.total,
     );
+
 
   /**
    * 住民税の課税所得。
