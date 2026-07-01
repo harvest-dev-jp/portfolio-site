@@ -22,13 +22,36 @@ import type {
 function createNormalizedInput(
   updates: Partial<NormalizedTaxInput> = {},
 ): NormalizedTaxInput {
+  const defaultResidentTaxDeductions = {
+    basic: 430_000,
+    socialInsurance: 0,
+    ideco: 276_000,
+    spouse: 0,
+    dependent: 0,
+    disability: 0,
+    lifeInsurance: 0,
+    earthquakeInsurance: 0,
+    medicalExpense: 0,
+    other: 1_979_000,
+    total: 2_685_000,
+  };
+
   return {
     taxYear: 2026,
     sourceMode: "detailed",
 
     grossSalaryIncome: 6_243_900,
     salaryIncomeAmount: 4_552_000,
-    residentTaxIncomeDeductionTotal: 2_685_000,
+
+    /**
+     * 旧仕様との互換用。
+     *
+     * NormalizedTaxInputから削除済みの場合は、
+     * この項目も削除してください。
+     */
+    residentTaxIncomeDeductionTotal:
+      2_685_000,
+
     basicDeduction: 0,
     socialInsuranceDeduction: 0,
     idecoDeduction: 276_000,
@@ -54,22 +77,12 @@ function createNormalizedInput(
     filingMethod: "one-stop",
     safetyRate: 0.95,
 
-    ...updates,
-
     residentTaxDeductions: {
-      basic: 430_000,
-      socialInsurance: 0,
-      ideco: 276_000,
-      spouse: 0,
-      dependent: 0,
-      disability: 0,
-      lifeInsurance: 0,
-      earthquakeInsurance: 0,
-      medicalExpense: 0,
-      other: 1_979_000,
-
-      total: 2_685_000,
+      ...defaultResidentTaxDeductions,
+      ...updates.residentTaxDeductions,
     },
+
+    ...updates,
   };
 }
 
@@ -263,6 +276,10 @@ describe(
         ).toBe(186_700);
 
         expect(
+          residentTax.adjustmentDeduction,
+        ).toBe(2_500);
+
+        expect(
           residentTax
             .housingLoanTaxCreditApplied,
         ).toBe(67_800);
@@ -270,7 +287,7 @@ describe(
         expect(
           residentTax
             .incomeBasedTaxAfterCredits,
-        ).toBe(118_900);
+        ).toBe(116_400);
       },
     );
 
@@ -302,6 +319,19 @@ describe(
           );
 
         expect(
+          residentTax.taxableIncome,
+        ).toBe(1_867_000);
+
+        expect(
+          residentTax
+            .incomeBasedTaxBeforeCredits,
+        ).toBe(186_700);
+
+        expect(
+          residentTax.adjustmentDeduction,
+        ).toBe(2_500);
+
+        expect(
           residentTax
             .housingLoanTaxCreditApplied,
         ).toBe(0);
@@ -309,7 +339,7 @@ describe(
         expect(
           residentTax
             .incomeBasedTaxAfterCredits,
-        ).toBe(186_700);
+        ).toBe(184_200);
       },
     );
   },

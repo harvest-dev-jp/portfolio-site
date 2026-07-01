@@ -7,14 +7,8 @@ import type {
   ResidentTaxResult,
 } from "./types";
 
+import { calculateAdjustmentDeduction } from "./calculateAdjustmentDeduction";
 import { taxRules2026 } from "./rules/2026";
-
-/**
- * 住民税の基礎控除額。
- *
- * 現段階では一般的な43万円として扱う。
- */
-const RESIDENT_TAX_BASIC_DEDUCTION = 430_000;
 
 /**
  * 2022年以降入居の場合の一般的な
@@ -53,8 +47,6 @@ function floorToThousand(
   );
 }
 
-
-
 /**
  * 住民税から控除する住宅ローン控除額を概算する。
  *
@@ -63,7 +55,7 @@ function floorToThousand(
  * 1. 所得税から引ききれなかった住宅ローン控除額
  * 2. 所得税の課税所得×5％
  * 3. 97,500円
- * 4. 控除可能な住民税所得割額
+ * 4. 調整控除後の住民税所得割額
  */
 function calculateResidentHousingLoanCredit(
   input: NormalizedTaxInput,
@@ -92,7 +84,7 @@ function calculateResidentHousingLoanCredit(
   /**
    * 所得税の課税総所得金額等の5％。
    *
-   * 本アプリでは、所得税の課税所得を
+   * 本アプリでは所得税の課税所得を、
    * 課税総所得金額等の概算値として利用する。
    */
   const taxableIncomeLimit =
@@ -118,7 +110,7 @@ function calculateResidentHousingLoanCredit(
  */
 export function calculateResidentTax(
   input: NormalizedTaxInput,
-  deductions: IncomeDeductionBreakdown,
+  _deductions: IncomeDeductionBreakdown,
   incomeTax: IncomeTaxResult,
 ): ResidentTaxResult {
   const salaryIncomeAmount =
@@ -131,9 +123,11 @@ export function calculateResidentTax(
       input.residentTaxDeductions.total,
     );
 
-
   /**
    * 住民税の課税所得。
+   *
+   * 給与所得から住民税用所得控除を差し引き、
+   * 1,000円未満を切り捨てる。
    */
   const taxableIncome =
     floorToThousand(
@@ -153,12 +147,26 @@ export function calculateResidentTax(
     );
 
   /**
-   * 人的控除差の調整控除。
-   *
-   * 現段階では未実装。
+   * 所得税と住民税の人的控除差に対する
+   * 調整控除を計算する。
    */
-  const adjustmentDeduction = 0;
+  const adjustmentResult =
+    calculateAdjustmentDeduction(
+      input,
+      taxableIncome,
+    );
 
+  const adjustmentDeduction =
+    normalizeNonNegativeInteger(
+      adjustmentResult.adjustmentDeduction,
+    );
+
+  /**
+   * 調整控除適用後の住民税所得割額。
+   *
+   * 住宅ローン控除は、この金額を上限として
+   * 適用する。
+   */
   const availableTaxAfterAdjustment =
     Math.max(
       0,
@@ -184,11 +192,15 @@ export function calculateResidentTax(
    */
   const otherTaxCredits = 0;
 
+  /**
+   * 調整控除、住宅ローン控除、
+   * その他税額控除を適用した後の
+   * 最終的な住民税所得割額。
+   */
   const incomeBasedTaxAfterCredits =
     Math.max(
       0,
-      incomeBasedTaxBeforeCredits -
-        adjustmentDeduction -
+      availableTaxAfterAdjustment -
         housingLoanTaxCreditApplied -
         otherTaxCredits,
     );
