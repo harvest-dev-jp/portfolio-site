@@ -168,6 +168,9 @@ export interface NormalizedTaxInput {
   medicalExpenseDeduction: number;
   otherIncomeDeduction: number;
 
+　// 住民税用控除
+  residentTaxDeductions: ResidentTaxDeductionBreakdown;
+
   // 住民税用所得控除
   residentTaxIncomeDeductionTotal: number;
 
@@ -181,10 +184,41 @@ export interface NormalizedTaxInput {
   safetyRate: SafetyRate;
 }
 
+export interface ResidentTaxDeductionBreakdown {
+  basic: number;
+  socialInsurance: number;
+  ideco: number;
+  spouse: number;
+  dependent: number;
+  disability: number;
+  lifeInsurance: number;
+  earthquakeInsurance: number;
+  medicalExpense: number;
+  other: number;
+  total: number;
+}
+
 /**
  * 所得控除の内訳
  */
 export interface IncomeDeductionBreakdown {
+  basic: number;
+  socialInsurance: number;
+  ideco: number;
+  spouse: number;
+  dependent: number;
+  disability: number;
+  lifeInsurance: number;
+  earthquakeInsurance: number;
+  medicalExpense: number;
+  other: number;
+  total: number;
+}
+
+/**
+ * 住民税用の所得控除内訳。
+ */
+export interface ResidentTaxDeductionBreakdown {
   basic: number;
   socialInsurance: number;
   ideco: number;
