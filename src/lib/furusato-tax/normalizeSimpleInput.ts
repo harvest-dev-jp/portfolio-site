@@ -116,6 +116,10 @@ export function normalizeSimpleInput(
     dependentDeduction:
       dependentResult.dependentDeductionTotal,
 
+    specialDependentDeduction:
+      dependentResult
+        .specialDependentDeductionTotal,
+
     disabilityDeduction:
       dependentResult.disabilityDeductionTotal,
 

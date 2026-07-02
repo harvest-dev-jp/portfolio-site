@@ -34,6 +34,7 @@ function createNormalizedInput(
     medicalExpense: 0,
     other: 1_979_000,
     total: 2_685_000,
+    specialDependentDeduction: 0,
   };
 
   return {
@@ -78,10 +79,19 @@ function createNormalizedInput(
     safetyRate: 0.95,
 
     residentTaxDeductions: {
-      ...defaultResidentTaxDeductions,
-      ...updates.residentTaxDeductions,
+      basic: 430_000,
+      socialInsurance: 0,
+      ideco: 276_000,
+      spouse: 0,
+      dependent: 0,
+      specialDependent: 0,
+      disability: 0,
+      lifeInsurance: 0,
+      earthquakeInsurance: 0,
+      medicalExpense: 0,
+      other: 1_979_000,
+      total: 2_685_000,
     },
-
     ...updates,
   };
 }

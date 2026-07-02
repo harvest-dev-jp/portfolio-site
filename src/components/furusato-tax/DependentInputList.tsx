@@ -3,10 +3,6 @@
 import AgeSelect from "./AgeSelect";
 
 import type {
-  ChangeEvent,
-} from "react";
-
-import type {
   Dependent,
   DisabilityCategory,
   Relationship,
@@ -61,6 +57,7 @@ function createDependent(): Dependent {
     id: crypto.randomUUID(),
     relationship: "child",
     age: 16,
+    salaryIncome: 0,
     livesTogether: true,
     disabilityCategory: "none",
   };
@@ -157,6 +154,9 @@ export default function DependentInputList({
             const ageId =
               `dependent-${dependent.id}-age`;
 
+            const salaryIncomeId =
+              `dependent-${dependent.id}-salary-income`;
+
             const livingId =
               `dependent-${dependent.id}-living`;
 
@@ -250,6 +250,61 @@ export default function DependentInputList({
                     max={120}
                     description="2026年12月31日時点の年齢を選択します。"
                   />
+
+                  {/* 年間給与収入 */}
+                  <div>
+                    <label
+                      htmlFor={salaryIncomeId}
+                      className="block text-sm font-semibold text-slate-800"
+                    >
+                      年間給与収入
+                    </label>
+
+                    <div className="relative mt-2">
+                      <input
+                        id={salaryIncomeId}
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        step={10_000}
+                        value={dependent.salaryIncome ?? 0}
+                        onChange={(event) =>
+                          handleUpdate(
+                            dependent.id,
+                            {
+                              salaryIncome:
+                                Math.max(
+                                  0,
+                                  Math.trunc(
+                                    Number(event.target.value) ||
+                                      0,
+                                  ),
+                                ),
+                            },
+                          )
+                        }
+                        className={[
+                          "w-full rounded-lg border",
+                          "border-slate-300 bg-white",
+                          "px-3 py-2.5 pr-10 text-right",
+                          "text-slate-900 shadow-sm",
+                          "outline-none transition",
+                          "focus:border-emerald-500",
+                          "focus:ring-2 focus:ring-emerald-200",
+                        ].join(" ")}
+                      />
+
+                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">
+                        円
+                      </span>
+                    </div>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      2026年中の給与・賞与の合計見込額です。給与収入がない場合は0円です。
+                    </p>
+                  </div>
+
+
                   {/* 同居区分 */}
                   <fieldset>
                     <legend

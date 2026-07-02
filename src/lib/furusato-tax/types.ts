@@ -62,9 +62,18 @@ export interface Dependent {
   id: string;
   relationship: Relationship;
   age: number;
+
+  /**
+   * 2026年中の年間給与収入。
+   *
+   * 給与以外の所得は現段階では対象外。
+   */
+  salaryIncome: number;
+
   livesTogether: boolean;
   disabilityCategory: DisabilityCategory;
 }
+
 
 /**
  * かんたん入力
@@ -167,8 +176,14 @@ export interface NormalizedTaxInput {
   earthquakeInsuranceDeduction: number;
   medicalExpenseDeduction: number;
   otherIncomeDeduction: number;
-
-　// 住民税用控除
+  /**
+   * 所得税の特定親族特別控除額。
+   *
+   * dependentDeductionにも含まれているため、
+   * 二重加算しないこと。
+   */
+  specialDependentDeduction: number;
+  // 住民税用控除
   residentTaxDeductions: ResidentTaxDeductionBreakdown;
 
   // 住民税用所得控除
@@ -184,12 +199,27 @@ export interface NormalizedTaxInput {
   safetyRate: SafetyRate;
 }
 
+/**
+ * 住民税用の所得控除内訳。
+ */
 export interface ResidentTaxDeductionBreakdown {
   basic: number;
   socialInsurance: number;
   ideco: number;
   spouse: number;
+
+  /**
+   * 通常の扶養控除と
+   * 特定親族特別控除を含む合計額。
+   */
   dependent: number;
+
+  /**
+   * dependentのうち、
+   * 特定親族特別控除に該当する額。
+   */
+  specialDependent: number;
+
   disability: number;
   lifeInsurance: number;
   earthquakeInsurance: number;
@@ -202,23 +232,6 @@ export interface ResidentTaxDeductionBreakdown {
  * 所得控除の内訳
  */
 export interface IncomeDeductionBreakdown {
-  basic: number;
-  socialInsurance: number;
-  ideco: number;
-  spouse: number;
-  dependent: number;
-  disability: number;
-  lifeInsurance: number;
-  earthquakeInsurance: number;
-  medicalExpense: number;
-  other: number;
-  total: number;
-}
-
-/**
- * 住民税用の所得控除内訳。
- */
-export interface ResidentTaxDeductionBreakdown {
   basic: number;
   socialInsurance: number;
   ideco: number;

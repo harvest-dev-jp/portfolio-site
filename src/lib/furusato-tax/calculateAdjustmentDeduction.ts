@@ -50,15 +50,41 @@ export function calculatePersonalDeductionDifference(
       ),
   );
 
-  const dependentDifference = Math.max(
+  /**
+ * 特定親族特別控除は、調整控除上の
+ * 人的控除差を0円として扱う。
+ *
+ * そのため、所得税・住民税の扶養控除合計から
+ * 特定親族特別控除分を除いて差額を計算する。
+ */
+const incomeTaxRegularDependentDeduction =
+  Math.max(
     0,
     normalizeNonNegativeInteger(
       input.dependentDeduction,
     ) -
       normalizeNonNegativeInteger(
-        input.residentTaxDeductions.dependent,
+        input.specialDependentDeduction,
       ),
   );
+
+const residentTaxRegularDependentDeduction =
+  Math.max(
+    0,
+    normalizeNonNegativeInteger(
+      input.residentTaxDeductions.dependent,
+    ) -
+      normalizeNonNegativeInteger(
+        input.residentTaxDeductions
+          .specialDependent,
+      ),
+  );
+
+const dependentDifference = Math.max(
+  0,
+  incomeTaxRegularDependentDeduction -
+    residentTaxRegularDependentDeduction,
+);
 
   const disabilityDifference = Math.max(
     0,

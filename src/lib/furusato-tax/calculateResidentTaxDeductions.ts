@@ -156,12 +156,51 @@ function calculateResidentSpouseDeduction(
   return 0;
 }
 
-/**
- * 扶養親族1人分の住民税扶養控除。
- */
+interface ResidentDependentDeductionResult {
+  dependent: number;
+  specialDependent: number;
+}
+
+function calculateResidentSpecialDependentDeduction(
+  totalIncomeAmount: number,
+): number {
+  if (
+    totalIncomeAmount <= 580_000 ||
+    totalIncomeAmount > 1_230_000
+  ) {
+    return 0;
+  }
+
+  if (totalIncomeAmount <= 950_000) {
+    return 450_000;
+  }
+
+  if (totalIncomeAmount <= 1_000_000) {
+    return 410_000;
+  }
+
+  if (totalIncomeAmount <= 1_050_000) {
+    return 310_000;
+  }
+
+  if (totalIncomeAmount <= 1_100_000) {
+    return 210_000;
+  }
+
+  if (totalIncomeAmount <= 1_150_000) {
+    return 110_000;
+  }
+
+  if (totalIncomeAmount <= 1_200_000) {
+    return 60_000;
+  }
+
+  return 30_000;
+}
+
 function calculateResidentDependentDeduction(
   dependent: Dependent,
-): number {
+): ResidentDependentDeductionResult {
   const age = Math.min(
     120,
     Math.max(
@@ -170,29 +209,80 @@ function calculateResidentDependentDeduction(
     ),
   );
 
+  const salaryIncome =
+    normalizeNonNegativeInteger(
+      dependent.salaryIncome,
+    );
+
+  const totalIncomeAmount =
+    calculateSalaryIncome(
+      salaryIncome,
+    ).salaryIncomeAmount;
+
+  if (
+    age >= 19 &&
+    age < 23 &&
+    totalIncomeAmount > 580_000 &&
+    totalIncomeAmount <= 1_230_000
+  ) {
+    const specialDependent =
+      calculateResidentSpecialDependentDeduction(
+        totalIncomeAmount,
+      );
+
+    return {
+      dependent: specialDependent,
+      specialDependent,
+    };
+  }
+
+  if (totalIncomeAmount > 580_000) {
+    return {
+      dependent: 0,
+      specialDependent: 0,
+    };
+  }
+
   if (age < 16) {
-    return 0;
+    return {
+      dependent: 0,
+      specialDependent: 0,
+    };
   }
 
   if (age < 19) {
-    return 330_000;
+    return {
+      dependent: 330_000,
+      specialDependent: 0,
+    };
   }
 
   if (age < 23) {
-    return 450_000;
+    return {
+      dependent: 450_000,
+      specialDependent: 0,
+    };
   }
 
   if (age < 70) {
-    return 330_000;
+    return {
+      dependent: 330_000,
+      specialDependent: 0,
+    };
   }
 
   const isLivingTogetherParent =
     dependent.relationship === "parent" &&
     dependent.livesTogether;
 
-  return isLivingTogetherParent
-    ? 450_000
-    : 380_000;
+  return {
+    dependent:
+      isLivingTogetherParent
+        ? 450_000
+        : 380_000,
+
+    specialDependent: 0,
+  };
 }
 
 /**
@@ -252,13 +342,22 @@ export function calculateResidentTaxDeductions(
       totalIncomeAmount,
     );
 
+  const dependentResults =
+    input.dependents.map(
+      calculateResidentDependentDeduction,
+    );
+
   const dependent =
-    input.dependents.reduce(
+    dependentResults.reduce(
       (total, item) =>
-        total +
-        calculateResidentDependentDeduction(
-          item,
-        ),
+        total + item.dependent,
+      0,
+    );
+
+  const specialDependent =
+    dependentResults.reduce(
+      (total, item) =>
+        total + item.specialDependent,
       0,
     );
 
@@ -312,16 +411,17 @@ export function calculateResidentTaxDeductions(
     other;
 
   return {
-    basic,
-    socialInsurance,
-    ideco,
-    spouse,
-    dependent,
-    disability,
-    lifeInsurance,
-    earthquakeInsurance,
-    medicalExpense,
-    other,
-    total,
+  basic,
+  socialInsurance,
+  ideco,
+  spouse,
+  dependent,
+  specialDependent,
+  disability,
+  lifeInsurance,
+  earthquakeInsurance,
+  medicalExpense,
+  other,
+  total,
   };
 }

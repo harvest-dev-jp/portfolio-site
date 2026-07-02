@@ -158,6 +158,8 @@ const residentOtherDeduction =
         input.additionalTaxCredit,
       ),
 
+    specialDependentDeduction: 0,
+    
     // 寄附条件
     plannedDonation:
       normalizeNonNegativeInteger(
@@ -191,6 +193,7 @@ const residentOtherDeduction =
       disability: 0,
       lifeInsurance: 0,
       earthquakeInsurance: 0,
+      specialDependent: 0,
       medicalExpense:
         additionalMedicalExpenseDeduction,
       other:
