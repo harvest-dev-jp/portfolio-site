@@ -59,13 +59,11 @@ export default function Works() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div key={project.id} className="card group hover:shadow-lg transition-all">
-              <div className="h-48 bg-gradient-to-br from-harvest-700 to-harvest-600 rounded-lg mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
-                <div className="h-48 bg-gradient-to-br from-harvest-50 to-harvest-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
-                  <div className="w-28 h-28 rounded-full bg-white shadow-md border border-harvest-200 flex items-center justify-center">
-                    <span className="text-6xl" aria-hidden="true">
-                      {project.icon}
-                    </span>
-                  </div>
+              <div className="h-48 bg-harvest-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                <div className="w-28 h-28 rounded-full bg-harvest-100 border border-harvest-100 flex items-center justify-center">
+                  <span className="text-6xl" aria-hidden="true">
+                    {project.icon}
+                  </span>
                 </div>
               </div>
               <span className="inline-block mb-3 px-3 py-1 bg-harvest-100 text-harvest-700 rounded-full text-xs">
