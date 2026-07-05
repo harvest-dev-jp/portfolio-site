@@ -87,24 +87,17 @@ function calculateResidentSpouseDeduction(
 
   const spouseTotalIncomeAmount =
     calculateSalaryIncome(
-      input.spouseSalaryIncome,
+      normalizeNonNegativeInteger(
+        input.spouseSalaryIncome,
+      ),
     ).salaryIncomeAmount;
 
-  /**
-   * 一般の控除対象配偶者。
-   *
-   * 現在の画面には配偶者年齢がないため、
-   * 老人控除対象配偶者は未対応。
-   */
   if (spouseTotalIncomeAmount <= 580_000) {
     return [330_000, 220_000, 110_000][
       taxpayerCategory
     ];
   }
 
-  /**
-   * 配偶者特別控除。
-   */
   if (spouseTotalIncomeAmount <= 1_000_000) {
     return [330_000, 220_000, 110_000][
       taxpayerCategory
@@ -161,43 +154,54 @@ interface ResidentDependentDeductionResult {
   specialDependent: number;
 }
 
+/**
+ * 住民税の特定親族特別控除額を計算する。
+ */
 function calculateResidentSpecialDependentDeduction(
   totalIncomeAmount: number,
 ): number {
+  const income =
+    normalizeNonNegativeInteger(
+      totalIncomeAmount,
+    );
+
   if (
-    totalIncomeAmount <= 580_000 ||
-    totalIncomeAmount > 1_230_000
+    income <= 620_000 ||
+    income > 1_230_000
   ) {
     return 0;
   }
 
-  if (totalIncomeAmount <= 950_000) {
+  if (income <= 950_000) {
     return 450_000;
   }
 
-  if (totalIncomeAmount <= 1_000_000) {
+  if (income <= 1_000_000) {
     return 410_000;
   }
 
-  if (totalIncomeAmount <= 1_050_000) {
+  if (income <= 1_050_000) {
     return 310_000;
   }
 
-  if (totalIncomeAmount <= 1_100_000) {
+  if (income <= 1_100_000) {
     return 210_000;
   }
 
-  if (totalIncomeAmount <= 1_150_000) {
+  if (income <= 1_150_000) {
     return 110_000;
   }
 
-  if (totalIncomeAmount <= 1_200_000) {
+  if (income <= 1_200_000) {
     return 60_000;
   }
 
   return 30_000;
 }
 
+/**
+ * 扶養親族1人分の住民税扶養控除を計算する。
+ */
 function calculateResidentDependentDeduction(
   dependent: Dependent,
 ): ResidentDependentDeductionResult {
@@ -219,10 +223,15 @@ function calculateResidentDependentDeduction(
       salaryIncome,
     ).salaryIncomeAmount;
 
+  /**
+   * 19歳以上23歳未満で、
+   * 合計所得62万円超123万円以下なら
+   * 特定親族特別控除を適用する。
+   */
   if (
     age >= 19 &&
     age < 23 &&
-    totalIncomeAmount > 580_000 &&
+    totalIncomeAmount > 620_000 &&
     totalIncomeAmount <= 1_230_000
   ) {
     const specialDependent =
@@ -236,7 +245,11 @@ function calculateResidentDependentDeduction(
     };
   }
 
-  if (totalIncomeAmount > 580_000) {
+  /**
+   * 通常の扶養控除は、
+   * 合計所得62万円以下を条件とする。
+   */
+  if (totalIncomeAmount > 620_000) {
     return {
       dependent: 0,
       specialDependent: 0,
@@ -291,6 +304,24 @@ function calculateResidentDependentDeduction(
 function calculateResidentDisabilityDeduction(
   dependent: Dependent,
 ): number {
+  const salaryIncome =
+    normalizeNonNegativeInteger(
+      dependent.salaryIncome,
+    );
+
+  const totalIncomeAmount =
+    calculateSalaryIncome(
+      salaryIncome,
+    ).salaryIncomeAmount;
+
+  /**
+   * 扶養親族の所得要件を超える場合は、
+   * 障害者控除の対象外として扱う。
+   */
+  if (totalIncomeAmount > 620_000) {
+    return 0;
+  }
+
   switch (dependent.disabilityCategory) {
     case "none":
       return 0;
@@ -371,13 +402,6 @@ export function calculateResidentTaxDeductions(
       0,
     );
 
-  /**
-   * 現在の入力項目は「所得税用の控除額」なので、
-   * 生命保険料・地震保険料控除は暫定的に同額を使用する。
-   *
-   * 将来、支払保険料を入力する方式へ変えれば、
-   * 住民税用控除を別計算できる。
-   */
   const lifeInsurance =
     normalizeNonNegativeInteger(
       input.lifeInsuranceDeduction,
@@ -411,17 +435,17 @@ export function calculateResidentTaxDeductions(
     other;
 
   return {
-  basic,
-  socialInsurance,
-  ideco,
-  spouse,
-  dependent,
-  specialDependent,
-  disability,
-  lifeInsurance,
-  earthquakeInsurance,
-  medicalExpense,
-  other,
-  total,
+    basic,
+    socialInsurance,
+    ideco,
+    spouse,
+    dependent,
+    specialDependent,
+    disability,
+    lifeInsurance,
+    earthquakeInsurance,
+    medicalExpense,
+    other,
+    total,
   };
 }

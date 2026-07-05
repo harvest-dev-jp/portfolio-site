@@ -92,7 +92,7 @@ function calculateSpecialDependentDeduction(
     );
 
   if (
-    income <= 580_000 ||
+    income <= 620_000 ||
     income > 1_230_000
   ) {
     return 0;
@@ -143,22 +143,23 @@ function getDependentAgeCategory(
   const age = normalizeAge(dependent.age);
 
   /**
-   * 19～22歳で所得58万円超123万円以下なら、
+   * 19～22歳で所得62万円超123万円以下なら、
    * 特定親族特別控除。
    */
   if (
     age >= 19 &&
     age < 23 &&
-    totalIncomeAmount > 580_000 &&
+    totalIncomeAmount > 620_000 &&
     totalIncomeAmount <= 1_230_000
   ) {
     return "special-dependent";
   }
 
   /**
-   * 扶養控除は所得58万円以下が条件。
+   * 通常の扶養控除は、
+   * 合計所得62万円以下が条件。
    */
-  if (totalIncomeAmount > 580_000) {
+  if (totalIncomeAmount > 620_000) {
     return "not-eligible";
   }
 
@@ -309,7 +310,7 @@ function calculateDependentDeductionItem(
    * 障害者控除の対象外として扱う。
    */
   const isEligibleDependent =
-    totalIncomeAmount <= 580_000;
+  totalIncomeAmount <= 620_000;
 
   const disabilityDeduction =
     getDisabilityDeduction(

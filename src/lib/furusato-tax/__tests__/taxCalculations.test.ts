@@ -153,6 +153,23 @@ describe(
         ).toBe(1_456_000);
       },
     );
+    it(
+      "給与収入136万円の給与所得は62万円になる",
+      () => {
+        const result =
+          calculateSalaryIncome(
+            1_360_000,
+          );
+
+        expect(
+          result.salaryIncomeAmount,
+        ).toBe(620_000);
+
+        expect(
+          result.salaryIncomeDeduction,
+        ).toBe(740_000);
+      },
+    );
   },
 );
 
