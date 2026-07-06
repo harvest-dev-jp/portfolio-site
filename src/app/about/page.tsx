@@ -91,9 +91,11 @@ export default function About() {
           <h2 className="heading-2 mb-12">プロフィール</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Profile Section 
             <div>
               <div className="w-64 h-64 bg-gradient-to-br from-harvest-700 to-harvest-600 rounded-lg"></div>
             </div>
+            */}
 
             <div>
               <div className="space-y-6 bg-white/60 dark:bg-gray-800/60 p-6 rounded-lg shadow-sm">
@@ -188,7 +190,7 @@ export default function About() {
       year: "2026年〜",
       title: "Harvest Portfolio公開",
       description:
-        "Next.js、TypeScript、Tailwind CSSを用いたポートフォリオサイトとリタイアメント・シミュレーターを開発。",
+        "Next.js、TypeScript、Tailwind CSSを用いたポートフォリオサイトとリタイアメント・シミュレーター、ふるさと納税シミュレーションを開発。",
     },
   ].map((item, index) => (
     <div key={index} className="card">

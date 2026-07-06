@@ -81,7 +81,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Works Preview */}
+      {/* Featured Works Preview 
       <section className="bg-harvest-50 section-py">
         <div className="container-md">
           <h2 className="heading-2 mb-12 text-center">最近のプロジェクト</h2>
@@ -117,6 +117,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      */}
 
       {/* CTA Section */}
       <section className="container-md section-py">

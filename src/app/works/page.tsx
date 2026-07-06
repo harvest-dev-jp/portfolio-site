@@ -29,7 +29,7 @@ export default function Works() {
     {
       id: 3,
       icon: "📱",
-      status: "準備中",
+      status: "公開中",
       title: "ふるさと納税シミュレーション＋",
       description:
         "年収や家族構成だけでなく、iDeCoや住宅ローン控除なども考慮し、自己負担額を2,000円に収められる寄附上限額の目安を試算するWebアプリ。",
@@ -108,7 +108,7 @@ export default function Works() {
         </div>
       </section>
 
-      {/* Featured Project Summary */}
+      {/* Featured Project Summary 
       <section className="container-md section-py">
         <div className="rounded-3xl border border-harvest-200 bg-harvest-50 p-8 shadow-sm">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -135,6 +135,7 @@ export default function Works() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Stats Section */}
       <section className="bg-harvest-900 text-white section-py">
