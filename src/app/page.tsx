@@ -63,13 +63,14 @@ const projects = [
               className="card group transition-all hover:shadow-lg"
             >
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                <div className="relative h-40 w-full overflow-hidden rounded-lg bg-harvest-100 md:h-36 md:w-48 md:flex-shrink-0">
+                {/* Thumbnail Area */}
+                <div className="relative h-44 w-full overflow-hidden rounded-lg border border-harvest-100 bg-white md:h-40 md:w-64 md:flex-shrink-0">
                   <Image
                     src={project.thumbnail}
                     alt={`${project.title}のサムネイル`}
                     fill
-                    className="object-contain p-3 transition-transform duration-300 group-hover:scale-105"
-                    sizes="(min-width: 768px) 192px, 100vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(min-width: 768px) 256px, 100vw"
                   />
                 </div>
 
@@ -130,7 +131,7 @@ const projects = [
         <h2 className="heading-2 mb-6">Concept</h2>
         <div className="max-w-3xl">
           <p className="mb-6 max-w-2xl text-xl leading-relaxed text-harvest-600">
-            実り、信頼、AI活用、落ち着いた雰囲気を追求するポートフォリオサイト
+            実りある成果、信頼、AI活用、落ち着いた雰囲気を追求するWebサイト
           </p>
         </div>
       </section>

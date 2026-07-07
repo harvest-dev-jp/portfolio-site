@@ -687,7 +687,7 @@ export default function RetirementSimulator() {
     <section className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          動的リタイアメント・シミュレーター
+          リタイアメント・シミュレーター
         </h1>
         <p className="mt-3 text-gray-600">
           年齢、資産、積立額、生活費、年金、投資リターン、インフレ率をもとに、<br/>
