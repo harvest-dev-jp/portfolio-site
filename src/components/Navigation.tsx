@@ -30,12 +30,6 @@ export default function Navigation() {
             About
           </Link>
           <Link
-            href="/works"
-            className="text-harvest-700 hover:text-harvest-900 transition-colors"
-          >
-            Works
-          </Link>
-          <Link
             href="/contact"
             className="text-harvest-700 hover:text-harvest-900 transition-colors"
           >
