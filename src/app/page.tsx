@@ -48,7 +48,7 @@ const projects = [
         <div className="max-w-3xl">
           <p className="mb-6 max-w-2xl text-xl leading-relaxed text-harvest-600">
             AIとWeb技術を活用し、業務の効率化・見える化を支援します。<br />
-            開発したProjectを公開しています。
+            開発したProjectを随時公開していきます。
           </p>
         </div>
       </section>
