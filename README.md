@@ -1,168 +1,78 @@
 # Harvest Portfolio Site
 
-個人開発エンジニア向けのポートフォリオサイトです。Next.js、TypeScript、Tailwind CSSを使用して構築されています。
+AIとWeb技術を活用し、業務の効率化・見える化を支援するための個人ポートフォリオサイトです。
 
-## 🌟 特徴
+業務システム開発とプロジェクトマネジメントの経験をもとに、Next.js、TypeScript、Tailwind CSSを使って制作しています。
 
-- **モダンなデザイン**: Harvestブランドの落ち着いた雰囲気を表現
-- **レスポンシブ対応**: モバイル、タブレット、デスクトップに対応
-- **高速パフォーマンス**: Next.jsのSSR/SSGで高速化
-- **Vercel対応**: Vercelへの簡単デプロイに対応
-- **TypeScript**: 型安全な開発
-- **Tailwind CSS**: ユーティリティファーストなスタイリング
+## Overview
 
-## 📂 プロジェクト構成
+このサイトでは、自己紹介、制作したWebアプリ、使用技術などを公開しています。
 
-```
+現在は以下のプロジェクトを掲載しています。
+
+- Harvest Portfolio Site
+- 動的リタイアメント・シミュレーター
+- ふるさと納税シミュレーション＋
+
+## Concept
+
+Harvestでは、次の3つを大切にしています。
+
+- **業務を見える化する**  
+  複雑な情報や判断材料を整理し、必要なことがひと目で分かる形にします。
+
+- **使いやすく整える**  
+  現場で迷わず使えるように、シンプルで分かりやすい画面を大切にします。
+
+- **AIとWebで支援する**  
+  AIとWeb技術を活用し、日々の業務改善や判断をサポートします。
+
+## Projects
+
+### Harvest Portfolio Site
+
+Next.js、TypeScript、Tailwind CSSで制作した個人ポートフォリオサイトです。
+
+### 動的リタイアメント・シミュレーター
+
+投資・年金・インフレを考慮して、将来の資産推移を試算するWebアプリです。
+
+### ふるさと納税シミュレーション＋
+
+iDeCoや住宅ローン控除も考慮できる、ふるさと納税上限額の試算アプリです。
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Recharts
+- GitHub
+- Vercel
+
+## Directory Structure
+
+```text
 src/
 ├── app/
-│   ├── layout.tsx          # ルートレイアウト
-│   ├── page.tsx            # ホームページ
-│   ├── globals.css         # グローバルスタイル
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── globals.css
 │   ├── about/
-│   │   └── page.tsx        # Aboutページ
+│   │   └── page.tsx
 │   ├── works/
-│   │   └── page.tsx        # Worksページ
+│   │   ├── page.tsx
+│   │   ├── featured/
+│   │   │   └── page.tsx
+│   │   └── furusato-tax/
+│   │       └── page.tsx
 │   └── contact/
-│       └── page.tsx        # Contactページ
-└── components/
-    ├── Navigation.tsx      # ナビゲーション
-    └── Footer.tsx          # フッター
-```
-
-## 🎨 Harvestブランド
-
-### コンセプト
-- **実り**: 困難を乗り越えたプロジェクトが生み出す成果
-- **信頼**: 高い品質とセキュリティを備えた確実なソリューション
-- **AI活用**: 最新のAI技術を活用した革新的な実装
-- **落ち着いた雰囲気**: シンプルで分かりやすい、清潔なデザイン
-
-### カラーパレット
-```
-harvest-50:  #faf8f6
-harvest-100: #f5f0eb
-harvest-200: #e8ddf6
-harvest-300: #dcc9bc
-harvest-400: #c8a88a
-harvest-500: #b89870
-harvest-600: #a0815e
-harvest-700: #7d6349
-harvest-800: #644e3a
-harvest-900: #4a3829
-```
-
-## 🚀 セットアップ手順
-
-### 1. 依存関係のインストール
-
-```bash
-npm install
-```
-
-### 2. 開発サーバーの起動
-
-```bash
-npm run dev
-```
-
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
-
-### 3. 本番ビルド
-
-```bash
-npm run build
-npm start
-```
-
-## 📄 ページ構成
-
-### Home (`/`)
-- ブランド紹介
-- 最近のプロジェクトプレビュー
-- CTA（Call to Action）
-
-### About (`/about`)
-- プロフィール
-- 専門分野と使用技術
-- Harvestのコンセプト詳細
-- 経歴
-
-### Works (`/works`)
-- プロジェクト一覧
-- プロジェクト詳細（使用技術など）
-- 統計情報
-
-### Contact (`/contact`)
-- お問い合わせフォーム
-- 代替連絡方法（メール、GitHub）
-- FAQ
-
-## 🔧 技術スタック
-
-- **フレームワーク**: [Next.js 15](https://nextjs.org/)
-- **言語**: [TypeScript](https://www.typescriptlang.org/)
-- **スタイリング**: [Tailwind CSS](https://tailwindcss.com/)
-- **リンター**: [ESLint](https://eslint.org/)
-- **ビルドツール**: [Next.js](https://nextjs.org/)
-
-## 📝 カスタマイズ方法
-
-### ブランドカラーの変更
-
-`tailwind.config.ts` の `colors.harvest` を編集してください。
-
-```typescript
-harvest: {
-  50: "#faf8f6",
-  100: "#f5f0eb",
-  // ... 他の色
-}
-```
-
-### サイト情報の変更
-
-各ページのコンテンツを直接編集してください。
-
-- ホームページ: `src/app/page.tsx`
-- Aboutページ: `src/app/about/page.tsx`
-- Worksページ: `src/app/works/page.tsx`
-- Contactページ: `src/app/contact/page.tsx`
-
-### メール機能の実装
-
-`src/app/contact/page.tsx` の フォーム送信ロジックを実装してください。
-
-```typescript
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  // メール送信処理をここに実装
-};
-```
-
-例えば、SendGridやMailgunなどのサービスを利用できます。
-
-## 🌐 Vercelでのデプロイ
-
-### デプロイ手順
-
-1. GitHub にプロジェクトをプッシュ
-2. [Vercel](https://vercel.com/) にアクセス
-3. "Import Project" をクリック
-4. GitHub リポジトリを選択
-5. デプロイをクリック
-
-### 環境変数の設定
-
-必要な環境変数は Vercel のプロジェクト設定から追加してください。
-
-## 📜 ライセンス
-
-MIT
-
-## 👤 GitHub
-
-[harvest-dev-jp](https://github.com/harvest-dev-jp)
-
----
-
-**Harvest** - 実り、信頼、AI活用、落ち着いた雰囲気を追求するポートフォリオサイト
+│       └── page.tsx
+├── components/
+│   ├── Footer.tsx
+│   ├── Navigation.tsx
+│   ├── RetirementSimulator.tsx
+│   └── furusato-tax/
+└── lib/
+    └── furusato-tax/
