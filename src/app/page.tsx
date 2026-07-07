@@ -55,7 +55,7 @@ const projects = [
 
       {/* Projects List */}
       <section className="container-md pt-0 pb-16">
-        <h6 className="heading-2 mb-6">Projects</h6>
+        <h2 className="heading-2 mb-6">Projects</h2>
         <div className="mx-auto grid max-w-4xl gap-6">
           {projects.map((project) => (
             <article
@@ -123,6 +123,15 @@ const projects = [
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="container-md pt-6 pb-8">
+        <h2 className="heading-2 mb-6">Concept</h2>
+        <div className="max-w-3xl">
+          <p className="mb-6 max-w-2xl text-xl leading-relaxed text-harvest-600">
+            実り、信頼、AI活用、落ち着いた雰囲気を追求するポートフォリオサイト
+          </p>
         </div>
       </section>
 
