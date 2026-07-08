@@ -51,13 +51,13 @@ export default function About() {
           <Image
             src="/profile.png"
             alt="Takeshi Akaguma"
-            width={180}
-            height={180}
+            width={120}
+            height={120}
             className="rounded-full border-4 border-harvest-100 shadow-lg"
             priority
           />
 
-          <h2 className="text-2xl font-bold text-harvest-900">
+          <h2 className="text-2xl text-harvest-900">
             Takeshi Akaguma
           </h2>
 

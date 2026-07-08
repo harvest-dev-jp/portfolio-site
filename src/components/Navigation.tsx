@@ -7,7 +7,7 @@ export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-harvest-100">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-harvest-50/95 backdrop-blur-sm border-b border-harvest-100">
       <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-harvest-900">
           <span className="bg-gradient-to-r from-harvest-700 to-harvest-600 bg-clip-text text-transparent">
@@ -65,13 +65,6 @@ export default function Navigation() {
               onClick={() => setIsOpen(false)}
             >
               About
-            </Link>
-            <Link
-              href="/works"
-              className="text-harvest-700 hover:text-harvest-900 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              Works
             </Link>
             <Link
               href="/contact"

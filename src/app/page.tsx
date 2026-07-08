@@ -20,7 +20,7 @@ const projects = [
     id: 2,
     thumbnail: "/works/retirement-simulator.png",
     status: "公開中",
-    title: "動的リタイアメント・シミュレーター",
+    title: "リタイアメント・シミュレーター",
     description:
       "投資・年金・インフレを考慮して、将来の資産推移を試算するWebアプリです。",
     technologies: ["React", "TypeScript", "Recharts"],
