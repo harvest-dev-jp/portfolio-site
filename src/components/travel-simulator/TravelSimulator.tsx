@@ -1,0 +1,132 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import BasicInfoForm from "./BasicInfoForm";
+import ExpenseForm from "./ExpenseForm";
+import ExportPanel from "./ExportPanel";
+import ScheduleForm from "./ScheduleForm";
+import SummaryPanel from "./SummaryPanel";
+import VlogForm from "./VlogForm";
+
+import {
+  createDefaultTravelPlan,
+} from "@/lib/travel-simulator/defaultValues";
+
+import {
+  clearTravelPlan,
+  loadTravelPlan,
+  saveTravelPlan,
+} from "@/lib/travel-simulator/storage";
+
+import type { TravelPlan } from "@/lib/travel-simulator/types";
+
+export default function TravelSimulator() {
+  const [plan, setPlan] = useState<TravelPlan>(
+    createDefaultTravelPlan,
+  );
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setPlan(loadTravelPlan());
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    saveTravelPlan(plan);
+  }, [isLoaded, plan]);
+
+  const updatePlan = (updates: Partial<TravelPlan>) => {
+    setPlan((current) => ({
+      ...current,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const handleReset = () => {
+    const shouldReset = window.confirm(
+      "入力内容をすべて初期値に戻しますか？",
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
+    clearTravelPlan();
+    setPlan(createDefaultTravelPlan());
+  };
+
+  return (
+    <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <header className="mb-8">
+        <p className="mb-2 text-sm font-semibold tracking-wide text-emerald-700">
+          Domestic Travel Planner
+        </p>
+
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          トラベルシミュレーター
+        </h1>
+
+        <p className="mt-4 max-w-3xl leading-7 text-slate-600">
+          旅行日程、費用、VLOG撮影計画をひとつの画面で整理できます。
+          入力内容はブラウザに自動保存され、CSVやテキストで書き出せます。
+        </p>
+
+        <div className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
+          初期版は日本国内旅行・円表示に対応しています。ログインや外部データベースは使わず、この端末のブラウザ内に保存します。
+        </div>
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <div className="space-y-8">
+          <BasicInfoForm
+            value={plan.basicInfo}
+            onChange={(basicInfo) =>
+              updatePlan({
+                basicInfo: {
+                  ...plan.basicInfo,
+                  ...basicInfo,
+                },
+              })
+            }
+          />
+
+          <ScheduleForm
+            value={plan.schedules}
+            defaultDate={plan.basicInfo.departureDate}
+            onChange={(schedules) =>
+              updatePlan({ schedules })
+            }
+          />
+
+          <ExpenseForm
+            value={plan.expenses}
+            schedules={plan.schedules}
+            defaultPaymentDate={plan.basicInfo.departureDate}
+            onChange={(expenses) =>
+              updatePlan({ expenses })
+            }
+          />
+
+          <VlogForm
+            value={plan.vlogItems}
+            onChange={(vlogItems) =>
+              updatePlan({ vlogItems })
+            }
+          />
+
+          <ExportPanel plan={plan} onReset={handleReset} />
+        </div>
+
+        <div className="lg:sticky lg:top-28">
+          <SummaryPanel plan={plan} />
+        </div>
+      </div>
+    </section>
+  );
+}

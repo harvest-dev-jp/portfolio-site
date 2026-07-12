@@ -38,6 +38,18 @@ export default function Works() {
       linkLabel: "詳細を見る →",
       external: false,
     },
+    {
+      id: 4,
+      icon: "🧳",
+      status: "公開中",
+      title: "トラベルシミュレーター",
+      description:
+        "旅行日程、費用、VLOG撮影計画をまとめて管理できる旅行プランニングアプリです。",
+      technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
+      link: "/works/travel-simulator",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
   ];
 
   return (

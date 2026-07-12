@@ -40,6 +40,27 @@ const projects = [
     linkLabel: "詳細を見る →",
     external: false,
   },
+  {
+    id: 4,
+    thumbnail: "/works/travel-simulator.svg",
+    status: "公開中",
+    title: "トラベルシミュレーター",
+    description:
+      "旅行日程、費用、VLOG撮影メモをまとめて管理できる旅行計画アプリ。旅行前のスケジュール作成から、旅行後の動画制作までをサポートします。",
+    features: [
+      "旅行基本情報",
+      "詳細日程",
+      "費用合計",
+      "VLOG撮影メモ",
+      "CSV出力",
+      "テキスト出力",
+      "ローカル保存",
+    ],
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
+    link: "/works/travel-simulator",
+    linkLabel: "詳しく見る",
+    external: false,
+  },
 ];
   return (
     <div>
@@ -57,11 +78,15 @@ const projects = [
       <section className="container-md pt-0 pb-16">
         <h2 className="heading-2 mb-6">Projects</h2>
         <div className="mx-auto grid max-w-4xl gap-6">
-          {projects.map((project) => (
-            <article
-              key={project.id}
-              className="card group transition-all hover:shadow-lg"
-            >
+          {projects.map((project) => {
+            const features =
+              "features" in project ? project.features ?? [] : [];
+
+            return (
+              <article
+                key={project.id}
+                className="card group transition-all hover:shadow-lg"
+              >
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
                 {/* Thumbnail Area */}
                 <div className="relative h-44 w-full overflow-hidden rounded-lg border border-harvest-100 bg-white md:h-40 md:w-64 md:flex-shrink-0">
@@ -85,6 +110,19 @@ const projects = [
                   <p className="mb-4 text-harvest-600">
                     {project.description}
                   </p>
+
+                  {features.length > 0 && (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {features.map((feature) => (
+                        <span
+                          key={feature}
+                          className="rounded-full bg-white px-2.5 py-1 text-xs text-harvest-700 ring-1 ring-harvest-100"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="mb-4 flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
@@ -122,8 +160,9 @@ const projects = [
                   )}
                 </div>
               </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
 
