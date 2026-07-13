@@ -9,7 +9,9 @@ import {
 import { createDefaultVlogItem } from "@/lib/travel-simulator/defaultValues";
 
 interface VlogFormProps {
+  title: string;
   value: VlogItem[];
+  onTitleChange: (title: string) => void;
   onChange: (items: VlogItem[]) => void;
 }
 
@@ -34,7 +36,9 @@ const mediaTypes = Object.keys(mediaTypeLabels) as MediaType[];
 const orientations = Object.keys(orientationLabels) as Orientation[];
 
 export default function VlogForm({
+  title,
   value,
+  onTitleChange,
   onChange,
 }: VlogFormProps) {
   const updateItem = (
@@ -59,17 +63,20 @@ export default function VlogForm({
             VLOG撮影計画
           </h2>
         </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            onChange([...value, createDefaultVlogItem()])
-          }
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
-        >
-          撮影メモを追加
-        </button>
       </div>
+
+      <label className="mb-5 block text-sm font-semibold text-slate-800">
+        VLOGタイトル
+        <input
+          type="text"
+          value={title}
+          onChange={(event) =>
+            onTitleChange(event.target.value)
+          }
+          placeholder="那須高原1泊2日 大人の癒し旅"
+          className={inputClass}
+        />
+      </label>
 
       <div className="space-y-4">
         {value.map((item, index) => (
@@ -103,12 +110,12 @@ export default function VlogForm({
             </div>
 
             <h3 className="mb-4 font-bold text-slate-900">
-              撮影メモ {index + 1}
+              シーン {index + 1}
             </h3>
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className={labelClass}>
-                VLOGタイトル案
+                シーン名
                 <input
                   type="text"
                   value={item.titleIdea}
@@ -223,6 +230,16 @@ export default function VlogForm({
           </div>
         ))}
       </div>
+
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...value, createDefaultVlogItem()])
+        }
+        className="mt-5 w-full rounded-lg bg-emerald-700 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-800 sm:w-auto sm:py-2"
+      >
+        撮影メモを追加
+      </button>
     </section>
   );
 }

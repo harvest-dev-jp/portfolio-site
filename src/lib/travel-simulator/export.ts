@@ -61,13 +61,13 @@ export function createTravelPlanCsv(plan: TravelPlan) {
     ...plan.vlogItems.map((item) =>
       toCsvRow([
         "VLOG",
+        plan.vlogTitle,
+        item.titleIdea,
         item.scene,
         item.shootingPoint,
-        `${mediaTypeLabels[item.mediaType]} / ${
-          orientationLabels[item.orientation]
-        }`,
-        item.isCaptured ? "撮影済み" : "未撮影",
-        item.memo,
+        `${item.isCaptured ? "撮影済み" : "未撮影"} / ${
+          mediaTypeLabels[item.mediaType]
+        } / ${orientationLabels[item.orientation]} / ${item.memo}`,
       ]),
     ),
   ];
@@ -109,10 +109,11 @@ export function createTravelPlanText(plan: TravelPlan) {
     ),
     "",
     "【VLOG撮影メモ】",
+    `VLOGタイトル：${plan.vlogTitle || "未設定"}`,
     ...plan.vlogItems.map(
       (item) =>
         `${item.isCaptured ? "撮影済み" : "未撮影"} ${
-          item.scene
+          item.titleIdea || item.scene
         }：${item.shootingPoint || "撮影ポイント未入力"}（${
           mediaTypeLabels[item.mediaType]
         } / ${

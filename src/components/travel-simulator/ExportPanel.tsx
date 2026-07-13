@@ -1,3 +1,9 @@
+// src/components/travel-simulator/ExportPanel.tsx
+
+"use client";
+
+import { useState } from "react";
+
 import type { TravelPlan } from "@/lib/travel-simulator/types";
 
 import {
@@ -15,9 +21,22 @@ export default function ExportPanel({
   plan,
   onReset,
 }: ExportPanelProps) {
+  const [copyMessage, setCopyMessage] = useState("");
   const filenameBase =
     plan.basicInfo.title.trim() || "travel-plan";
   const textPreview = createTravelPlanText(plan);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(textPreview);
+      setCopyMessage("コピーしました");
+      window.setTimeout(() => setCopyMessage(""), 2500);
+    } catch (error) {
+      console.error("テキストのコピーに失敗しました。", error);
+      setCopyMessage("コピーできませんでした");
+      window.setTimeout(() => setCopyMessage(""), 2500);
+    }
+  };
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -34,9 +53,26 @@ export default function ExportPanel({
       </div>
 
       <div className="mt-5">
-        <h3 className="text-sm font-bold text-slate-900">
-          テキスト出力プレビュー
-        </h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">
+              テキスト出力プレビュー
+            </h3>
+            {copyMessage && (
+              <p className="mt-1 text-xs font-medium text-emerald-700">
+                {copyMessage}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            コピー
+          </button>
+        </div>
         <pre className="mt-3 max-h-72 min-h-40 overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
           {textPreview}
         </pre>

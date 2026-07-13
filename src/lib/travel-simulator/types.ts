@@ -56,6 +56,7 @@ export interface TravelPlan {
   basicInfo: TripBasicInfo;
   schedules: ScheduleItem[];
   expenses: ExpenseItem[];
+  vlogTitle: string;
   vlogItems: VlogItem[];
   updatedAt: string;
 }

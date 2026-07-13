@@ -48,6 +48,50 @@ export default function TravelSimulator() {
     }));
   };
 
+  const handleBasicInfoChange = (
+    basicInfo: Partial<TravelPlan["basicInfo"]>,
+  ) => {
+    setPlan((current) => {
+      const nextBasicInfo = {
+        ...current.basicInfo,
+        ...basicInfo,
+      };
+
+      if (
+        basicInfo.departureDate === undefined ||
+        basicInfo.departureDate === current.basicInfo.departureDate
+      ) {
+        return {
+          ...current,
+          basicInfo: nextBasicInfo,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      return {
+        ...current,
+        basicInfo: nextBasicInfo,
+        schedules: current.schedules.map((schedule, index) =>
+          index === 0
+            ? {
+                ...schedule,
+                date: basicInfo.departureDate ?? "",
+              }
+            : schedule,
+        ),
+        expenses: current.expenses.map((expense, index) =>
+          index === 0
+            ? {
+                ...expense,
+                paymentDate: basicInfo.departureDate ?? "",
+              }
+            : expense,
+        ),
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
   const handleReset = () => {
     const shouldReset = window.confirm(
       "入力内容をすべて初期値に戻しますか？",
@@ -86,14 +130,7 @@ export default function TravelSimulator() {
         <div className="space-y-8">
           <BasicInfoForm
             value={plan.basicInfo}
-            onChange={(basicInfo) =>
-              updatePlan({
-                basicInfo: {
-                  ...plan.basicInfo,
-                  ...basicInfo,
-                },
-              })
-            }
+            onChange={handleBasicInfoChange}
           />
 
           <ScheduleForm
@@ -114,7 +151,11 @@ export default function TravelSimulator() {
           />
 
           <VlogForm
+            title={plan.vlogTitle}
             value={plan.vlogItems}
+            onTitleChange={(vlogTitle) =>
+              updatePlan({ vlogTitle })
+            }
             onChange={(vlogItems) =>
               updatePlan({ vlogItems })
             }

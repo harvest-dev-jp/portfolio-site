@@ -86,6 +86,7 @@ export function createDefaultTravelPlan(): TravelPlan {
         "expense-initial",
       ),
     ],
+    vlogTitle: "",
     vlogItems: [createDefaultVlogItem("vlog-initial")],
     updatedAt: "",
   };

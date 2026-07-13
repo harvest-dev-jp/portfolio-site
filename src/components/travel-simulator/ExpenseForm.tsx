@@ -6,7 +6,7 @@ import {
 } from "@/lib/travel-simulator/types";
 
 import { createDefaultExpenseItem } from "@/lib/travel-simulator/defaultValues";
-import { formatYen } from "@/lib/travel-simulator/calculations";
+import MoneyInput from "./MoneyInput";
 
 interface ExpenseFormProps {
   value: ExpenseItem[];
@@ -41,6 +41,16 @@ export default function ExpenseForm({
     );
   };
 
+  const handleAddExpense = () => {
+    const previousPaymentDate =
+      value[value.length - 1]?.paymentDate || defaultPaymentDate;
+
+    onChange([
+      ...value,
+      createDefaultExpenseItem(previousPaymentDate),
+    ]);
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -52,19 +62,6 @@ export default function ExpenseForm({
             費用
           </h2>
         </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            onChange([
-              ...value,
-              createDefaultExpenseItem(defaultPaymentDate),
-            ])
-          }
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
-        >
-          費用を追加
-        </button>
       </div>
 
       <div className="space-y-4">
@@ -102,37 +99,19 @@ export default function ExpenseForm({
                   className={inputClass}
                 />
               </label>
-              <div>
-                <div className="flex items-center justify-between gap-4">
-                  <label
-                    htmlFor={`expense-amount-${item.id}`}
-                    className={labelClass}
-                  >
-                    金額
-                  </label>
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
-                    {formatYen(item.amount)}
-                  </span>
-                </div>
-                <input
-                  id={`expense-amount-${item.id}`}
-                  type="range"
-                  min={0}
-                  max={300000}
-                  step={1000}
-                  value={item.amount}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      amount: Math.max(0, Number(event.target.value)),
-                    })
-                  }
-                  className="mt-4 w-full accent-emerald-600"
-                />
-                <div className="mt-2 flex justify-between text-xs text-slate-500">
-                  <span>0円</span>
-                  <span>300,000円</span>
-                </div>
-              </div>
+              <MoneyInput
+                id={`expense-amount-${item.id}`}
+                label="金額"
+                value={item.amount}
+                min={0}
+                max={300000}
+                onChange={(amount) =>
+                  updateItem(item.id, {
+                    amount,
+                  })
+                }
+                description="円単位で入力できます。"
+              />
               <label className={labelClass}>
                 カテゴリ
                 <select
@@ -203,6 +182,14 @@ export default function ExpenseForm({
           </div>
         ))}
       </div>
+
+      <button
+        type="button"
+        onClick={handleAddExpense}
+        className="mt-5 w-full rounded-lg bg-emerald-700 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-800 sm:w-auto sm:py-2"
+      >
+        費用を追加
+      </button>
     </section>
   );
 }

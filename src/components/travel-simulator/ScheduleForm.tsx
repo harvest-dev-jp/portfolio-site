@@ -18,6 +18,71 @@ export default function ScheduleForm({
   defaultDate,
   onChange,
 }: ScheduleFormProps) {
+  const getDurationFromTimes = (
+    startTime: string,
+    endTime: string,
+  ) => {
+    if (!startTime || !endTime) {
+      return null;
+    }
+
+    const [startHours, startMinutes] = startTime
+      .split(":")
+      .map(Number);
+    const [endHours, endMinutes] = endTime
+      .split(":")
+      .map(Number);
+
+    if (
+      !Number.isFinite(startHours) ||
+      !Number.isFinite(startMinutes) ||
+      !Number.isFinite(endHours) ||
+      !Number.isFinite(endMinutes)
+    ) {
+      return null;
+    }
+
+    const startTotal = startHours * 60 + startMinutes;
+    const endTotal = endHours * 60 + endMinutes;
+    const duration = endTotal - startTotal;
+
+    if (duration < 0) {
+      return null;
+    }
+
+    return Math.min(duration, 360);
+  };
+
+  const addMinutesToTime = (
+    startTime: string,
+    durationMinutes: number,
+  ) => {
+    if (!startTime) {
+      return "";
+    }
+
+    const [hours, minutes] = startTime.split(":").map(Number);
+
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+      return "";
+    }
+
+    const totalMinutes = hours * 60 + minutes + durationMinutes;
+
+    if (totalMinutes < 0 || totalMinutes >= 24 * 60) {
+      return "";
+    }
+
+    const nextHours = Math.floor(totalMinutes / 60)
+      .toString()
+      .padStart(2, "0");
+    const nextMinutes = (totalMinutes % 60)
+      .toString()
+      .padStart(2, "0");
+
+    return `${nextHours}:${nextMinutes}`;
+  };
+
   const updateItem = (
     id: string,
     updates: Partial<ScheduleItem>,
@@ -33,6 +98,57 @@ export default function ScheduleForm({
     onChange(value.filter((item) => item.id !== id));
   };
 
+  const handleStartTimeChange = (
+    item: ScheduleItem,
+    startTime: string,
+  ) => {
+    updateItem(item.id, {
+      startTime,
+      endTime: startTime,
+      durationMinutes: 0,
+    });
+  };
+
+  const handleEndTimeChange = (
+    item: ScheduleItem,
+    endTime: string,
+  ) => {
+    const durationMinutes = getDurationFromTimes(
+      item.startTime,
+      endTime,
+    );
+
+    updateItem(item.id, {
+      endTime,
+      ...(durationMinutes === null ? {} : { durationMinutes }),
+    });
+  };
+
+  const handleDurationChange = (
+    item: ScheduleItem,
+    durationMinutes: number,
+  ) => {
+    const endTime = addMinutesToTime(
+      item.startTime,
+      durationMinutes,
+    );
+
+    updateItem(item.id, {
+      durationMinutes,
+      ...(endTime ? { endTime } : {}),
+    });
+  };
+
+  const handleAddSchedule = () => {
+    const previousDate =
+      value[value.length - 1]?.date || defaultDate;
+
+    onChange([
+      ...value,
+      createDefaultScheduleItem(previousDate),
+    ]);
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -44,19 +160,6 @@ export default function ScheduleForm({
             詳細日程
           </h2>
         </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            onChange([
-              ...value,
-              createDefaultScheduleItem(defaultDate),
-            ])
-          }
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
-        >
-          日程を追加
-        </button>
       </div>
 
       <div className="space-y-4">
@@ -98,9 +201,10 @@ export default function ScheduleForm({
                   type="time"
                   value={item.startTime}
                   onChange={(event) =>
-                    updateItem(item.id, {
-                      startTime: event.target.value,
-                    })
+                    handleStartTimeChange(
+                      item,
+                      event.target.value,
+                    )
                   }
                   className={inputClass}
                 />
@@ -111,9 +215,10 @@ export default function ScheduleForm({
                   type="time"
                   value={item.endTime}
                   onChange={(event) =>
-                    updateItem(item.id, {
-                      endTime: event.target.value,
-                    })
+                    handleEndTimeChange(
+                      item,
+                      event.target.value,
+                    )
                   }
                   className={inputClass}
                 />
@@ -134,22 +239,23 @@ export default function ScheduleForm({
                   id={`schedule-duration-${item.id}`}
                   type="range"
                   min={0}
-                  max={720}
+                  max={360}
                   step={5}
                   value={item.durationMinutes}
                   onChange={(event) =>
-                    updateItem(item.id, {
-                      durationMinutes: Math.max(
+                    handleDurationChange(
+                      item,
+                      Math.max(
                         0,
                         Number(event.target.value),
                       ),
-                    })
+                    )
                   }
                   className="mt-4 w-full accent-emerald-600"
                 />
                 <div className="mt-2 flex justify-between text-xs text-slate-500">
                   <span>0分</span>
-                  <span>720分</span>
+                  <span>360分</span>
                 </div>
               </div>
             </div>
@@ -199,6 +305,14 @@ export default function ScheduleForm({
           </div>
         ))}
       </div>
+
+      <button
+        type="button"
+        onClick={handleAddSchedule}
+        className="mt-5 w-full rounded-lg bg-emerald-700 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-800 sm:w-auto sm:py-2"
+      >
+        予定を追加
+      </button>
     </section>
   );
 }
