@@ -108,6 +108,18 @@ export default function BasicInfoForm({
           className={inputClass}
         />
       </label>
+
+      <label className="mt-5 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">
+        <input
+          type="checkbox"
+          checked={value.useVlog}
+          onChange={(event) =>
+            onChange({ useVlog: event.target.checked })
+          }
+          className="h-4 w-4 accent-emerald-600"
+        />
+        VLOG撮影計画を使う
+      </label>
     </section>
   );
 }

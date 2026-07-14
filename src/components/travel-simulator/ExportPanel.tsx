@@ -2,26 +2,35 @@
 
 "use client";
 
-import { useState } from "react";
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 
 import type { TravelPlan } from "@/lib/travel-simulator/types";
 
 import {
   createTravelPlanCsv,
+  createTravelPlanJson,
+  createTravelPlanJsonFilename,
   createTravelPlanText,
   downloadTextFile,
+  parseTravelPlanJson,
 } from "@/lib/travel-simulator/export";
 
 interface ExportPanelProps {
   plan: TravelPlan;
-  onReset: () => void;
+  onLoadPlan: (plan: TravelPlan) => void;
 }
 
 export default function ExportPanel({
   plan,
-  onReset,
+  onLoadPlan,
 }: ExportPanelProps) {
   const [copyMessage, setCopyMessage] = useState("");
+  const [fileMessage, setFileMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const filenameBase =
     plan.basicInfo.title.trim() || "travel-plan";
   const textPreview = createTravelPlanText(plan);
@@ -38,6 +47,52 @@ export default function ExportPanel({
     }
   };
 
+  const handleSaveJson = () => {
+    downloadTextFile(
+      createTravelPlanJsonFilename(plan),
+      createTravelPlanJson(plan),
+      "application/json",
+    );
+    setFileMessage("JSONを保存しました");
+    window.setTimeout(() => setFileMessage(""), 2500);
+  };
+
+  const handleLoadClick = () => {
+    const shouldLoad = window.confirm(
+      "現在の編集内容を破棄して読み込みますか？",
+    );
+
+    if (!shouldLoad) {
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      const loadedPlan = parseTravelPlanJson(content);
+
+      onLoadPlan(loadedPlan);
+      setFileMessage("JSONを読み込みました");
+      window.setTimeout(() => setFileMessage(""), 2500);
+    } catch (error) {
+      console.error("旅行計画JSONの読み込みに失敗しました。", error);
+      setFileMessage("このファイルは読み込めません");
+    }
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div>
@@ -48,9 +103,17 @@ export default function ExportPanel({
           保存・出力
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          入力内容はこのブラウザに自動保存されます。旅行後の整理用にCSVまたはテキストで出力できます。
+          入力内容はこのブラウザに自動保存されます。JSONで保存すると、別の旅行データとして後から読み込んで再編集できます。
         </p>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json,.json"
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
       <div className="mt-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -81,6 +144,22 @@ export default function ExportPanel({
       <div className="mt-5 flex flex-wrap gap-3">
         <button
           type="button"
+          onClick={handleSaveJson}
+          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
+        >
+          保存
+        </button>
+
+        <button
+          type="button"
+          onClick={handleLoadClick}
+          className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-50"
+        >
+          読込
+        </button>
+
+        <button
+          type="button"
           onClick={() =>
             downloadTextFile(
               `${filenameBase}.csv`,
@@ -88,7 +167,7 @@ export default function ExportPanel({
               "text/csv",
             )
           }
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
           CSV出力
         </button>
@@ -104,17 +183,16 @@ export default function ExportPanel({
           }
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
-          テキスト出力
+          TXT出力
         </button>
 
-        <button
-          type="button"
-          onClick={onReset}
-          className="rounded-lg border border-rose-200 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
-        >
-          入力をリセット
-        </button>
       </div>
+
+      {fileMessage && (
+        <p className="mt-3 text-sm font-medium text-emerald-700">
+          {fileMessage}
+        </p>
+      )}
     </section>
   );
 }

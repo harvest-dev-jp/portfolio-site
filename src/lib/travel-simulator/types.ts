@@ -17,6 +17,7 @@ export interface TripBasicInfo {
   nights: number;
   destination: string;
   memo: string;
+  useVlog: boolean;
 }
 
 export interface ScheduleItem {
@@ -59,6 +60,13 @@ export interface TravelPlan {
   vlogTitle: string;
   vlogItems: VlogItem[];
   updatedAt: string;
+}
+
+export interface TravelPlanSaveFile {
+  format: "TravelSimulator";
+  version: "1.0";
+  exportedAt: string;
+  travelPlan: TravelPlan;
 }
 
 export interface ExpenseSummary {

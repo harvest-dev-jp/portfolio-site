@@ -6,13 +6,31 @@ import type { TravelPlan } from "./types";
 
 const STORAGE_KEY = "harvest-travel-simulator-plan-v1";
 
-function normalizeTravelPlan(plan: TravelPlan): TravelPlan {
-  const departureDate = plan.basicInfo.departureDate;
+export function normalizeTravelPlan(
+  plan: Partial<TravelPlan>,
+): TravelPlan {
+  const defaultPlan = createDefaultTravelPlan();
+  const basicInfo = {
+    ...defaultPlan.basicInfo,
+    ...plan.basicInfo,
+  };
+  const departureDate = basicInfo.departureDate;
+  const schedules = Array.isArray(plan.schedules)
+    ? plan.schedules
+    : defaultPlan.schedules;
+  const expenses = Array.isArray(plan.expenses)
+    ? plan.expenses
+    : defaultPlan.expenses;
+  const vlogItems = Array.isArray(plan.vlogItems)
+    ? plan.vlogItems
+    : defaultPlan.vlogItems;
 
   return {
+    ...defaultPlan,
     ...plan,
-    vlogTitle: plan.vlogTitle ?? "",
-    schedules: plan.schedules.map((schedule, index) => ({
+    basicInfo,
+    vlogTitle: plan.vlogTitle ?? defaultPlan.vlogTitle,
+    schedules: schedules.map((schedule, index) => ({
       ...schedule,
       date:
         index === 0 && !schedule.date
@@ -23,7 +41,7 @@ function normalizeTravelPlan(plan: TravelPlan): TravelPlan {
         Math.max(0, schedule.durationMinutes),
       ),
     })),
-    expenses: plan.expenses.map((expense, index) => ({
+    expenses: expenses.map((expense, index) => ({
       ...expense,
       paymentDate:
         index === 0 && !expense.paymentDate
@@ -33,6 +51,7 @@ function normalizeTravelPlan(plan: TravelPlan): TravelPlan {
         ? Math.max(0, expense.amount)
         : 0,
     })),
+    vlogItems,
   };
 }
 

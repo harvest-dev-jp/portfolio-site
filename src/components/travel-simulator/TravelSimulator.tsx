@@ -14,8 +14,8 @@ import {
 } from "@/lib/travel-simulator/defaultValues";
 
 import {
-  clearTravelPlan,
   loadTravelPlan,
+  normalizeTravelPlan,
   saveTravelPlan,
 } from "@/lib/travel-simulator/storage";
 
@@ -92,17 +92,11 @@ export default function TravelSimulator() {
     });
   };
 
-  const handleReset = () => {
-    const shouldReset = window.confirm(
-      "入力内容をすべて初期値に戻しますか？",
-    );
+  const handleLoadPlan = (loadedPlan: TravelPlan) => {
+    const nextPlan = normalizeTravelPlan(loadedPlan);
 
-    if (!shouldReset) {
-      return;
-    }
-
-    clearTravelPlan();
-    setPlan(createDefaultTravelPlan());
+    setPlan(nextPlan);
+    saveTravelPlan(nextPlan);
   };
 
   return (
@@ -150,18 +144,23 @@ export default function TravelSimulator() {
             }
           />
 
-          <VlogForm
-            title={plan.vlogTitle}
-            value={plan.vlogItems}
-            onTitleChange={(vlogTitle) =>
-              updatePlan({ vlogTitle })
-            }
-            onChange={(vlogItems) =>
-              updatePlan({ vlogItems })
-            }
-          />
+          {plan.basicInfo.useVlog && (
+            <VlogForm
+              title={plan.vlogTitle}
+              value={plan.vlogItems}
+              onTitleChange={(vlogTitle) =>
+                updatePlan({ vlogTitle })
+              }
+              onChange={(vlogItems) =>
+                updatePlan({ vlogItems })
+              }
+            />
+          )}
 
-          <ExportPanel plan={plan} onReset={handleReset} />
+          <ExportPanel
+            plan={plan}
+            onLoadPlan={handleLoadPlan}
+          />
         </div>
 
         <div className="lg:sticky lg:top-28">

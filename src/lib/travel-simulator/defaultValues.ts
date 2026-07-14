@@ -73,6 +73,7 @@ export function createDefaultTravelPlan(): TravelPlan {
       nights: 1,
       destination: "那須高原",
       memo: "",
+      useVlog: false,
     },
     schedules: [
       createDefaultScheduleItem(

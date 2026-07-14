@@ -2,6 +2,7 @@ import {
   expenseCategoryLabels,
   mediaTypeLabels,
   orientationLabels,
+  type TravelPlanSaveFile,
   type TravelPlan,
 } from "./types";
 
@@ -10,6 +11,8 @@ import {
   calculateTripDays,
   formatYen,
 } from "./calculations";
+
+import { normalizeTravelPlan } from "./storage";
 
 function escapeCsv(value: string | number | boolean) {
   const text = String(value);
@@ -23,6 +26,48 @@ function escapeCsv(value: string | number | boolean) {
 
 function toCsvRow(values: Array<string | number | boolean>) {
   return values.map(escapeCsv).join(",");
+}
+
+function sanitizeFilename(value: string) {
+  return value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_");
+}
+
+export function createTravelPlanJson(plan: TravelPlan) {
+  const saveFile: TravelPlanSaveFile = {
+    format: "TravelSimulator",
+    version: "1.0",
+    exportedAt: new Date().toISOString(),
+    travelPlan: plan,
+  };
+
+  return JSON.stringify(saveFile, null, 2);
+}
+
+export function createTravelPlanJsonFilename(plan: TravelPlan) {
+  const title = sanitizeFilename(plan.basicInfo.title) || "TravelPlan";
+  const departureDate =
+    sanitizeFilename(plan.basicInfo.departureDate) || "date-unset";
+
+  return `${title}_${departureDate}.json`;
+}
+
+export function parseTravelPlanJson(content: string) {
+  const parsedValue = JSON.parse(content) as Partial<TravelPlanSaveFile>;
+
+  if (
+    parsedValue.format !== "TravelSimulator" ||
+    parsedValue.version !== "1.0" ||
+    !parsedValue.travelPlan ||
+    typeof parsedValue.travelPlan !== "object"
+  ) {
+    throw new Error("INVALID_TRAVEL_SIMULATOR_FILE");
+  }
+
+  return normalizeTravelPlan(parsedValue.travelPlan);
 }
 
 export function createTravelPlanCsv(plan: TravelPlan) {
