@@ -42,6 +42,18 @@ const projects = [
   },
   {
     id: 4,
+    thumbnail: "/works/bakery-cafe-harvest/thumbnail.svg",
+    status: "公開中",
+    title: "Bakery & Cafe Harvest",
+    description:
+      "那須高原の自然と焼きたてパンをテーマにした、架空のベーカリーカフェ公式サイト。季節感のあるデザイン、レスポンシブ対応、スクロールアニメーションを実装しています。",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Responsive Design"],
+    link: "/works/bakery-cafe-harvest",
+    linkLabel: "詳しく見る",
+    external: false,
+  },
+  {
+    id: 5,
     thumbnail: "/works/travel-simulator.svg",
     status: "公開中",
     title: "トラベルシミュレーター",

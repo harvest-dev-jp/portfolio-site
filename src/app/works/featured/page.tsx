@@ -12,9 +12,6 @@ export default function FeaturedWorkPage() {
             資産形成から引退後のキャッシュフローまでを見通すシミュレーションアプリ。
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Link href="/works" className="btn-secondary inline-flex items-center justify-center">
-              Works に戻る
-            </Link>
             <span className="inline-flex items-center rounded-full bg-harvest-100 px-3 py-1 text-sm font-medium text-harvest-700">
               Next.js / TypeScript / SVGグラフ
             </span>

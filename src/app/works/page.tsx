@@ -40,6 +40,18 @@ export default function Works() {
     },
     {
       id: 4,
+      icon: "🥐",
+      status: "公開中",
+      title: "Bakery & Cafe Harvest",
+      description:
+        "那須高原の自然と焼きたてパンをテーマにした、架空のベーカリーカフェ公式サイトです。",
+      technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Responsive Design"],
+      link: "/works/bakery-cafe-harvest",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
+    {
+      id: 5,
       icon: "🧳",
       status: "公開中",
       title: "トラベルシミュレーター",
