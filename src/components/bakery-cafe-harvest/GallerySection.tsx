@@ -25,7 +25,7 @@ export default function GallerySection() {
   }, []);
 
   return (
-    <section id="gallery" className="bg-[#F7F3EA] px-4 py-20 sm:px-6 lg:px-8">
+    <section id="gallery" className="scroll-mt-32 bg-[#F7F3EA] px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <ScrollReveal>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#C98A45]">

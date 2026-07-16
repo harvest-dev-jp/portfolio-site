@@ -13,18 +13,18 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="bg-[#355746] px-4 py-20 text-white sm:px-6 lg:px-8">
+    <section id="contact" className="scroll-mt-32 bg-[#355746] px-4 py-20 text-white sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#F4D6A2]">
+          <p className="text-sm font-bold uppercase tracking-[0.24em] text-[#FFE0A8]">
             Contact
           </p>
-          <h2 className="mt-4 font-serif text-3xl font-bold leading-tight sm:text-5xl">
+          <h2 className="mt-4 font-serif text-3xl font-bold leading-tight text-white sm:text-5xl">
             那須高原で、
             <br />
             焼きたての時間を。
           </h2>
-          <p className="mt-6 leading-8 text-[#FFF8EB]">
+          <p className="mt-6 leading-8 text-[#FFF3DE]">
             アクセスや営業時間を確認して、森の中の小さなベーカリーカフェへ。
             フォームは作品確認用のダミーです。
           </p>
@@ -32,23 +32,23 @@ export default function ContactSection() {
             <a href="#access" className="rounded-full bg-[#C98A45] px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-[#B67834]">
               アクセスを見る
             </a>
-            <a href="#top" className="rounded-full border border-white/50 px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-white/10">
+            <a href="#top" className="rounded-full border border-white/70 px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-white/10">
               ページ上部へ
             </a>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 text-[#333] shadow-xl">
+        <form onSubmit={handleSubmit} className="rounded-3xl bg-[#FFFDF8] p-6 text-[#333] shadow-xl">
           <div className="grid gap-5">
-            <label className="text-sm font-bold text-[#355746]">
+            <label className="text-sm font-bold text-[#2A4638]">
               お名前
               <input required type="text" className="mt-2 w-full rounded-xl border border-[#E3D8C8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#C98A45]" />
             </label>
-            <label className="text-sm font-bold text-[#355746]">
+            <label className="text-sm font-bold text-[#2A4638]">
               メールアドレス
               <input required type="email" className="mt-2 w-full rounded-xl border border-[#E3D8C8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#C98A45]" />
             </label>
-            <label className="text-sm font-bold text-[#355746]">
+            <label className="text-sm font-bold text-[#2A4638]">
               お問い合わせ内容
               <textarea required rows={5} className="mt-2 w-full rounded-xl border border-[#E3D8C8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#C98A45]" />
             </label>

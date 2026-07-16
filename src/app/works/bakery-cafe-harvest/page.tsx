@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/works/bakery-cafe-harvest/thumbnail.svg",
+        url: "/works/bakery-cafe-harvest/thumbnail.jpg",
         width: 960,
         height: 540,
         alt: "Bakery & Cafe Harvestのサイトイメージ",

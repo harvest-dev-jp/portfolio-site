@@ -42,7 +42,7 @@ const projects = [
   },
   {
     id: 4,
-    thumbnail: "/works/bakery-cafe-harvest/thumbnail.svg",
+    thumbnail: "/works/bakery-cafe-harvest/thumbnail.jpg",
     status: "公開中",
     title: "Bakery & Cafe Harvest",
     description:

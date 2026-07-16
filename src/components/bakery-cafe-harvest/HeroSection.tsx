@@ -7,11 +7,11 @@ export default function HeroSection() {
       className="relative min-h-[calc(100vh-5rem)] overflow-hidden bg-[#F7F3EA]"
     >
       <Image
-        src="/works/bakery-cafe-harvest/hero.svg"
+        src="/works/bakery-cafe-harvest/hero.jpg"
         alt="那須高原の森にある木造ベーカリーカフェと焼きたてパンのイメージ"
         fill
         priority
-        className="object-cover"
+        className="object-cover object-[58%_center] sm:object-center"
         sizes="100vw"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#1f3028]/70 via-[#1f3028]/38 to-transparent" />

@@ -15,14 +15,25 @@ export default function CafeSection() {
     <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
         <ScrollReveal>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#EFE6D8] shadow-xl">
-            <Image
-              src="/works/bakery-cafe-harvest/terrace.svg"
-              alt="森を眺めるテラス席のイメージ"
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
+          <div className="grid gap-4">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#EFE6D8] shadow-xl">
+              <Image
+                src="/works/bakery-cafe-harvest/cafe-interior.jpg"
+                alt="木を基調とした店内と森を眺める窓辺のイメージ"
+                fill
+                className="object-cover object-[52%_center]"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
+            <div className="relative aspect-[16/9] overflow-hidden rounded-3xl bg-[#EFE6D8] shadow-md">
+              <Image
+                src="/works/bakery-cafe-harvest/cafe-terrace.jpg"
+                alt="森を眺める木製テラス席のイメージ"
+                fill
+                className="object-cover object-[45%_center]"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
           </div>
         </ScrollReveal>
 

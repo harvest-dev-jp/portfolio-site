@@ -4,7 +4,7 @@ import ScrollReveal from "./ScrollReveal";
 
 export default function NewsSection() {
   return (
-    <section id="news" className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+    <section id="news" className="scroll-mt-32 bg-white px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <ScrollReveal>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#C98A45]">

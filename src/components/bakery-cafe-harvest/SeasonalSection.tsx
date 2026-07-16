@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { seasons } from "@/lib/bakery-cafe-harvest/data";
@@ -21,7 +22,7 @@ export default function SeasonalSection() {
   }, []);
 
   return (
-    <section id="season" className="relative overflow-hidden bg-[#355746] px-4 py-20 text-white sm:px-6 lg:px-8">
+    <section id="season" className="relative scroll-mt-32 overflow-hidden bg-[#355746] px-4 py-20 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <ScrollReveal>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#F4D6A2]">
@@ -48,6 +49,22 @@ export default function SeasonalSection() {
                       : "border-white/20 bg-white/8 text-white hover:bg-white/14",
                   ].join(" ")}
                 >
+                  <div
+                    className={[
+                      "relative mb-4 overflow-hidden rounded-xl bg-[#EFE6D8]",
+                      isActive
+                        ? "aspect-[6/5] md:aspect-square"
+                        : "aspect-[6/5] md:aspect-square",
+                    ].join(" ")}
+                  >
+                    <Image
+                      src={season.image}
+                      alt={`${season.name}の那須高原とカフェの季節イメージ`}
+                      fill
+                      className="object-cover object-center"
+                      sizes="(min-width: 768px) 25vw, 100vw"
+                    />
+                  </div>
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${season.accent}`}>
                     {season.label}
                   </span>

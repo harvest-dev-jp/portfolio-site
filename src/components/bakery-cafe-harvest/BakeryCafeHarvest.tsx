@@ -14,7 +14,7 @@ import SeasonalSection from "./SeasonalSection";
 
 export default function BakeryCafeHarvest() {
   return (
-    <div className="relative overflow-x-hidden bg-[#F7F3EA] text-[#333333]">
+    <div className="relative -mt-4 overflow-x-clip bg-[#F7F3EA] text-[#333333]">
       <style
         dangerouslySetInnerHTML={{
           __html: `
