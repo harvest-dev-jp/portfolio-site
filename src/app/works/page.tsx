@@ -54,7 +54,7 @@ export default function Works() {
       id: 5,
       icon: "🧳",
       status: "公開中",
-      title: "トラベルシミュレーター",
+      title: "トラベル・プランナー＋",
       description:
         "旅行日程、費用、VLOG撮影計画をまとめて管理できる旅行プランニングアプリです。",
       technologies: ["Next.js", "TypeScript", "Tailwind CSS"],

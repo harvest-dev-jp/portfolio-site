@@ -107,7 +107,7 @@ export default function TravelSimulator() {
         </p>
 
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          トラベルシミュレーター
+          トラベル・プランナー＋
         </h1>
 
         <p className="mt-4 max-w-3xl leading-7 text-slate-600">

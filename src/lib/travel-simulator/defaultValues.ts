@@ -55,11 +55,6 @@ export function createDefaultVlogItem(
   return {
     id,
     titleIdea: "",
-    scene: "オープニング",
-    subtitleIdea: "",
-    shootingPoint: "",
-    mediaType: "video",
-    orientation: "landscape",
     memo: "",
     isCaptured: false,
   };

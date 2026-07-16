@@ -1,10 +1,4 @@
-import {
-  mediaTypeLabels,
-  orientationLabels,
-  type MediaType,
-  type Orientation,
-  type VlogItem,
-} from "@/lib/travel-simulator/types";
+import type { VlogItem } from "@/lib/travel-simulator/types";
 
 import { createDefaultVlogItem } from "@/lib/travel-simulator/defaultValues";
 
@@ -19,21 +13,6 @@ const inputClass =
   "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200";
 
 const labelClass = "text-sm font-semibold text-slate-800";
-
-const scenes = [
-  "オープニング",
-  "出発シーン",
-  "移動中",
-  "到着シーン",
-  "観光地紹介",
-  "食事シーン",
-  "ホテル紹介",
-  "夕景・夜景",
-  "まとめ・エンディング",
-];
-
-const mediaTypes = Object.keys(mediaTypeLabels) as MediaType[];
-const orientations = Object.keys(orientationLabels) as Orientation[];
 
 export default function VlogForm({
   title,
@@ -113,7 +92,7 @@ export default function VlogForm({
               シーン {index + 1}
             </h3>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4">
               <label className={labelClass}>
                 シーン名
                 <input
@@ -126,91 +105,6 @@ export default function VlogForm({
                   }
                   className={inputClass}
                 />
-              </label>
-
-              <label className={labelClass}>
-                想定シーン
-                <select
-                  value={item.scene}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      scene: event.target.value,
-                    })
-                  }
-                  className={inputClass}
-                >
-                  {scenes.map((scene) => (
-                    <option key={scene} value={scene}>
-                      {scene}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={labelClass}>
-                撮影ポイント
-                <input
-                  type="text"
-                  value={item.shootingPoint}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      shootingPoint: event.target.value,
-                    })
-                  }
-                  className={inputClass}
-                />
-              </label>
-
-              <label className={labelClass}>
-                字幕案
-                <input
-                  type="text"
-                  value={item.subtitleIdea}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      subtitleIdea: event.target.value,
-                    })
-                  }
-                  className={inputClass}
-                />
-              </label>
-
-              <label className={labelClass}>
-                静止画／動画
-                <select
-                  value={item.mediaType}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      mediaType: event.target.value as MediaType,
-                    })
-                  }
-                  className={inputClass}
-                >
-                  {mediaTypes.map((mediaType) => (
-                    <option key={mediaType} value={mediaType}>
-                      {mediaTypeLabels[mediaType]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={labelClass}>
-                横動画／縦動画
-                <select
-                  value={item.orientation}
-                  onChange={(event) =>
-                    updateItem(item.id, {
-                      orientation: event.target.value as Orientation,
-                    })
-                  }
-                  className={inputClass}
-                >
-                  {orientations.map((orientation) => (
-                    <option key={orientation} value={orientation}>
-                      {orientationLabels[orientation]}
-                    </option>
-                  ))}
-                </select>
               </label>
             </div>
 

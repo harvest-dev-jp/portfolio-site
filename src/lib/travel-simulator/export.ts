@@ -1,7 +1,5 @@
 import {
   expenseCategoryLabels,
-  mediaTypeLabels,
-  orientationLabels,
   type TravelPlanSaveFile,
   type TravelPlan,
 } from "./types";
@@ -41,7 +39,7 @@ export function createTravelPlanJson(plan: TravelPlan) {
     format: "TravelSimulator",
     version: "1.0",
     exportedAt: new Date().toISOString(),
-    travelPlan: plan,
+    travelPlan: normalizeTravelPlan(plan),
   };
 
   return JSON.stringify(saveFile, null, 2);
@@ -108,11 +106,9 @@ export function createTravelPlanCsv(plan: TravelPlan) {
         "VLOG",
         plan.vlogTitle,
         item.titleIdea,
-        item.scene,
-        item.shootingPoint,
-        `${item.isCaptured ? "撮影済み" : "未撮影"} / ${
-          mediaTypeLabels[item.mediaType]
-        } / ${orientationLabels[item.orientation]} / ${item.memo}`,
+        item.isCaptured ? "撮影済み" : "未撮影",
+        "",
+        item.memo,
       ]),
     ),
   ];
@@ -158,12 +154,8 @@ export function createTravelPlanText(plan: TravelPlan) {
     ...plan.vlogItems.map(
       (item) =>
         `${item.isCaptured ? "撮影済み" : "未撮影"} ${
-          item.titleIdea || item.scene
-        }：${item.shootingPoint || "撮影ポイント未入力"}（${
-          mediaTypeLabels[item.mediaType]
-        } / ${
-          orientationLabels[item.orientation]
-        }）${item.memo ? ` ${item.memo}` : ""}`,
+          item.titleIdea || "シーン名未入力"
+        }${item.memo ? `：${item.memo}` : ""}`,
     ),
   ];
 

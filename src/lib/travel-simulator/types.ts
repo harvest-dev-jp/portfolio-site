@@ -7,10 +7,6 @@ export type ExpenseCategory =
   | "souvenir"
   | "other";
 
-export type MediaType = "video" | "photo";
-
-export type Orientation = "landscape" | "portrait" | "none";
-
 export interface TripBasicInfo {
   title: string;
   departureDate: string;
@@ -44,11 +40,6 @@ export interface ExpenseItem {
 export interface VlogItem {
   id: string;
   titleIdea: string;
-  scene: string;
-  subtitleIdea: string;
-  shootingPoint: string;
-  mediaType: MediaType;
-  orientation: Orientation;
   memo: string;
   isCaptured: boolean;
 }
@@ -83,15 +74,4 @@ export const expenseCategoryLabels: Record<ExpenseCategory, string> = {
   parking: "駐車場代",
   souvenir: "お土産",
   other: "その他",
-};
-
-export const mediaTypeLabels: Record<MediaType, string> = {
-  video: "動画",
-  photo: "静止画",
-};
-
-export const orientationLabels: Record<Orientation, string> = {
-  landscape: "横",
-  portrait: "縦",
-  none: "指定なし",
 };

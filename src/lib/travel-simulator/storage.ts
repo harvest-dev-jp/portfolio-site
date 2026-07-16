@@ -1,4 +1,5 @@
 import {
+  createDefaultVlogItem,
   createDefaultTravelPlan,
 } from "./defaultValues";
 
@@ -51,7 +52,16 @@ export function normalizeTravelPlan(
         ? Math.max(0, expense.amount)
         : 0,
     })),
-    vlogItems,
+    vlogItems: vlogItems.map((item) => {
+      const defaultItem = createDefaultVlogItem();
+
+      return {
+        id: item.id ?? defaultItem.id,
+        titleIdea: item.titleIdea ?? defaultItem.titleIdea,
+        memo: item.memo ?? defaultItem.memo,
+        isCaptured: item.isCaptured ?? defaultItem.isCaptured,
+      };
+    }),
   };
 }
 
@@ -85,7 +95,7 @@ export function saveTravelPlan(plan: TravelPlan) {
   window.localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
-      ...plan,
+      ...normalizeTravelPlan(plan),
       updatedAt: new Date().toISOString(),
     }),
   );

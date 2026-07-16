@@ -56,7 +56,7 @@ const projects = [
     id: 5,
     thumbnail: "/works/travel-simulator.svg",
     status: "公開中",
-    title: "トラベルシミュレーター",
+    title: "トラベル・プランナー＋",
     description:
       "旅行日程、費用、VLOG撮影メモをまとめて管理できる旅行計画アプリ。旅行前のスケジュール作成から、旅行後の動画制作までをサポートします。",
     features: [

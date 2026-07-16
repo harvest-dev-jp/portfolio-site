@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import TravelSimulator from "@/components/travel-simulator/TravelSimulator";
 
 export const metadata: Metadata = {
-  title: "トラベルシミュレーター | Harvest",
+  title: "トラベル・プランナー＋ | Harvest",
   description:
     "旅行日程、費用、VLOG撮影計画をまとめて管理し、CSVやテキストで出力できるWebアプリです。",
 };
