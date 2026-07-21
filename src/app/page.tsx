@@ -73,6 +73,18 @@ const projects = [
     linkLabel: "詳しく見る",
     external: false,
   },
+  {
+    id: 6,
+    thumbnail: "/works/harvest-web-studio.svg",
+    status: "公開中",
+    title: "Harvest Web Studio",
+    description:
+      "個人事業主・小規模事業者向けに企画した、架空のWebサイト制作サービスLPです。料金比較、FAQ、相談フォームまでの導線を設計しています。",
+    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+    link: "/works/harvest-web-studio",
+    linkLabel: "詳しく見る",
+    external: false,
+  },
 ];
   return (
     <div>

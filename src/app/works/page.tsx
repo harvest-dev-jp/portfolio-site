@@ -51,6 +51,18 @@ export default function Works() {
       external: false,
     },
     {
+      id: 6,
+      icon: "🌱",
+      status: "公開中",
+      title: "Harvest Web Studio",
+      description:
+        "個人事業主・小規模事業者向けの架空Webサイト制作サービスLP。ターゲット設計、CTA、料金、FAQ、問い合わせ導線を意識して制作。",
+      technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LP・Web制作"],
+      link: "/works/harvest-web-studio",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
+    {
       id: 5,
       icon: "🧳",
       status: "公開中",
