@@ -20,11 +20,17 @@ body {
 
 /* The portfolio chrome is replaced by this work's dedicated landing-page chrome. */
 body:has(.hws-root) > nav,
-body:has(.hws-root) > footer {
+body:has(.hws-root) > footer,
+body:has(.salon-root) > nav,
+body:has(.salon-root) > footer,
+body:has(.aoba-root) > nav,
+body:has(.aoba-root) > footer {
   display: none;
 }
 
-body:has(.hws-root) > main {
+body:has(.hws-root) > main,
+body:has(.salon-root) > main,
+body:has(.aoba-root) > main {
   padding-top: 0;
 }
 

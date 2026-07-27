@@ -63,6 +63,30 @@ export default function Works() {
       external: false,
     },
     {
+      id: 7,
+      icon: "🌿",
+      status: "公開中",
+      title: "Lumière Relaxation Salon",
+      description:
+        "個人経営のリラクゼーションサロンを想定した架空Webサイト。初めての方にも安心感が伝わる構成、メニュー、料金、予約導線を意識して制作。",
+      technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "店舗Webサイト・自主制作"],
+      link: "/works/relaxation-salon",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
+    {
+      id: 8,
+      icon: "📄",
+      status: "公開中",
+      title: "あおば行政書士事務所",
+      description:
+        "個人・小規模事業者向けの行政書士事務所を想定した架空Webサイト。専門性と相談しやすさを両立し、業務案内、料金、ご相談の流れ、問い合わせ導線を分かりやすく設計。",
+      technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "士業Webサイト・自主制作"],
+      link: "/works/administrative-scrivener",
+      linkLabel: "詳細を見る →",
+      external: false,
+    },
+    {
       id: 5,
       icon: "🧳",
       status: "公開中",
