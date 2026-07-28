@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import ReservationForm from "@/components/relaxation-salon/ReservationForm";
@@ -23,7 +25,7 @@ const features = [
 ] as const;
 
 const menus = [
-  { name: "ボディケア", time: "60分", price: "6,600円", description: "肩、首、背中、腰、脚など、お疲れの箇所を中心に全身をゆっくりほぐします。", fit: ["全身の疲れが気になる", "初めて利用する", "定期的に身体を整えたい"] },
+  { name: "ボディケア", time: "60分", price: "6,600円", description: "肩、首、背中、腰、脚など、気になる箇所を伺いながら全身をゆっくりケアします。", fit: ["全身の疲れが気になる", "初めて利用する", "定期的に身体を休めたい"] },
   { name: "アロマトリートメント", time: "90分", price: "9,900円", description: "香りを選び、オイルを使って全身をゆったりとケアします。", fit: ["深くリラックスしたい", "ゆっくり過ごしたい", "特に疲れを感じている"] },
   { name: "ヘッド＆ボディ", time: "90分", price: "8,800円", description: "頭まわりと全身のボディケアを組み合わせたコースです。", fit: ["目や頭の疲れが気になる", "デスクワークが多い", "首や肩を中心に受けたい"] },
 ] as const;
@@ -44,18 +46,34 @@ const flow = [
   ["アフターティー・お会計", "施術後はゆっくりお過ごしください。"],
 ] as const;
 
+const optionalImages = {
+  space: "/images/relaxation-salon/salon-space.webp",
+  therapist: "/images/relaxation-salon/therapist.webp",
+} as const;
+
+function imageExists(src: string) {
+  return existsSync(join(process.cwd(), "public", src.replace(/^\//, "")));
+}
+
 export default function RelaxationSalonPage() {
+  const availableImages = {
+    space: imageExists(optionalImages.space),
+    therapist: imageExists(optionalImages.therapist),
+  };
+
   return (
-    <div id="salon-top" className="salon-root overflow-x-clip bg-[#FAF8F3] text-[#2F3431]">
+    <div id="salon-top" className="salon-root overflow-x-clip bg-[#FAF8F3] pb-20 text-[#2F3431] md:pb-0">
       <style dangerouslySetInnerHTML={{ __html: salonStyles }} />
       <SalonHeader />
       <main>
         <section className="px-5 py-14 md:py-20">
-          <div className="mx-auto grid max-w-[1160px] items-center gap-10 lg:grid-cols-[.9fr_1.1fr]">
+          <div className="mx-auto grid max-w-[1160px] items-center gap-10 xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] xl:gap-14">
             <div className="salon-fade min-w-0">
               <p className="salon-kicker">LUMIÈRE RELAXATION SALON</p>
-              <h1 className="mt-5 text-4xl font-bold leading-tight text-[#53695A] sm:text-5xl lg:text-[3.5rem]">
-                忙しい毎日に、<br />深呼吸できるひとときを。
+              <h1 className="salon-hero-title mt-5 font-bold leading-tight text-[#53695A]">
+                <span className="block whitespace-nowrap">忙しい毎日に、</span>
+                <span className="block whitespace-nowrap">深呼吸できる</span>
+                <span className="block whitespace-nowrap">ひとときを。</span>
               </h1>
               <p className="mt-6 text-lg leading-8 text-[#626862]">心と身体をゆるめる、<br />完全予約制の小さなリラクゼーションサロンです。</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -98,15 +116,15 @@ export default function RelaxationSalonPage() {
         </SalonSection>
 
         <SalonSection kicker="FIRST VISIT" title={<>初めての方も、<br />安心してお越しください。</>} tone>
-          <div className="salon-card-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">{firstVisit.map(([title, body]) => <SalonCard key={title}><h3 className="text-lg font-bold text-[#53695A]">{title}</h3><p className="mt-3 leading-7 text-[#626862]">{body}</p></SalonCard>)}</div>
+          <div className="salon-first-visit-grid salon-card-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">{firstVisit.map(([title, body]) => <SalonCard key={title}><h3 className="text-lg font-bold text-[#53695A]">{title}</h3><p className="mt-3 leading-7 text-[#626862]">{body}</p></SalonCard>)}</div>
         </SalonSection>
 
         <SalonSection kicker="OUR SPACE" title={<>静かに過ごせる、<br />小さなプライベート空間</>}>
-          <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_.9fr]"><div className="rounded-[2rem] border border-[#D8DED8] bg-[#E6EEE8] p-6 sm:p-8" role="img" aria-label="施術ベッド、自然光、タオル、植物があるプライベートサロンのイメージ"><div className="rounded-2xl bg-white p-5 shadow-sm"><div className="h-28 rounded-xl bg-[#F3EEE6]" /><div className="mt-4 grid grid-cols-[1fr_.45fr] gap-4"><div className="h-24 rounded-xl border-4 border-white bg-[#D7E2D9] shadow-sm" /><div className="grid place-items-center rounded-full bg-[#738B78] text-sm font-bold text-white">植物</div></div><div className="mt-4 flex justify-end gap-2"><span className="h-8 w-16 rounded-lg bg-white shadow-sm" /><span className="h-8 w-16 rounded-lg bg-white shadow-sm" /></div></div><p className="mt-4 text-center text-sm text-[#626862]">静かに過ごせる一室をイメージした図</p></div><div className="grid grid-cols-2 gap-3">{["施術ベッド", "自然光", "タオル", "植物", "待合スペース", "ハーブティー"].map((item) => <div key={item} className="rounded-xl border border-[#D8DED8] bg-white p-4 text-center font-medium">{item}</div>)}</div></div>
+          <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_.9fr]"><SpaceVisual usePhoto={availableImages.space} /><div><div className="grid grid-cols-2 gap-3">{["完全個室", "自然光", "清潔なタオル", "アフターティー"].map((item) => <div key={item} className="grid min-h-14 place-items-center rounded-xl border border-[#D8DED8] bg-white px-3 py-4 text-center font-bold text-[#53695A]"><span className="whitespace-nowrap">{item}</span></div>)}</div><p className="mt-5 leading-7 text-[#626862]">施術ベッド1台の静かな空間です。植物のある待合スペースで、施術後はハーブティーをお楽しみいただく想定です。</p></div></div>
         </SalonSection>
 
         <SalonSection id="therapist" kicker="THERAPIST" title="安心して話せることも、大切に。" tone>
-          <div className="grid items-center gap-10 lg:grid-cols-[.7fr_1.3fr]"><div className="mx-auto grid aspect-square w-56 place-items-center rounded-full bg-[#E6EEE8] text-5xl font-bold text-[#738B78]" aria-label="架空のセラピスト高橋美咲のイニシャル">M</div><div><p className="font-bold text-[#9A6E50]">セラピスト</p><h3 className="mt-2 text-2xl font-bold text-[#53695A]">高橋 美咲</h3><div className="mt-5 space-y-4 leading-8 text-[#626862]"><p>会社員として働いていた頃、忙しさの中で身体を休める時間の大切さを感じ、リラクゼーションの仕事を学びました。</p><p>施術だけでなく、安心して話せることや、静かに過ごせることも大切にしています。初めての方にも緊張せずお越しいただけるよう、丁寧なご案内を心がけています。</p></div><ul className="mt-5 flex flex-wrap gap-2 text-sm">{["リラクゼーション技術講座修了", "接客経験", "サロン勤務経験"].map((item) => <li key={item} className="rounded-full bg-white px-4 py-2">{item}</li>)}</ul><p className="mt-4 text-xs text-[#626862]">※プロフィールはポートフォリオ用の架空設定です。</p></div></div>
+          <div className="grid items-center gap-10 lg:grid-cols-[.7fr_1.3fr]"><TherapistVisual usePhoto={availableImages.therapist} /><div><p className="font-bold text-[#9A6E50]">セラピスト</p><h3 className="mt-2 text-2xl font-bold text-[#53695A]">高橋 美咲</h3><div className="mt-5 space-y-4 leading-8 text-[#626862]"><p>会社員として働いていた頃、忙しさの中で身体を休める時間の大切さを感じ、リラクゼーションの仕事を学びました。</p><p>施術だけでなく、安心して話せることや、静かに過ごせることも大切にしています。初めての方にも緊張せずお越しいただけるよう、丁寧なご案内を心がけています。</p><div className="rounded-2xl bg-white p-5"><h4 className="font-bold text-[#53695A]">初めての方へ</h4><p className="mt-2 leading-7">緊張せずに過ごしていただけるよう、施術前のご説明とカウンセリングを大切にしています。強さや室温なども、遠慮なくお申し付けください。</p></div></div><ul className="mt-5 flex flex-wrap gap-2 text-sm">{["リラクゼーション技術講座修了", "接客経験", "サロン勤務経験"].map((item) => <li key={item} className="rounded-full bg-white px-4 py-2">{item}</li>)}</ul><p className="mt-4 text-xs text-[#626862]">※プロフィールはポートフォリオ用の架空設定です。</p></div></div>
         </SalonSection>
 
         <SalonSection kicker="FLOW" title="ご予約からご来店まで">
@@ -114,7 +132,7 @@ export default function RelaxationSalonPage() {
         </SalonSection>
 
         <SalonSection kicker="VOICE" title="お客様の声" tone>
-          <div className="salon-card-grid grid gap-5 lg:grid-cols-3">{[["40代・会社員", "初めてでも丁寧に説明してもらえたので、安心して受けられました。"], ["30代・自営業", "静かな空間で、久しぶりにゆっくり過ごせました。"], ["50代・パート勤務", "施術の強さを確認しながら進めてもらえたのが良かったです。"]].map(([person, voice]) => <SalonCard key={person}><p className="font-bold text-[#9A6E50]">{person}</p><p className="mt-4 leading-8">“ {voice} ”</p></SalonCard>)}</div><p className="mt-6 text-sm text-[#626862]">掲載している感想は、ポートフォリオ用に作成した架空の内容です。</p>
+          <div className="salon-card-grid grid gap-5 lg:grid-cols-3">{[["40代・会社員（架空）", "初めてでしたが、流れや施術内容を丁寧に説明してもらえたので安心できました。"], ["30代・自営業（架空）", "静かな空間で、周囲を気にせずゆっくり過ごせました。"], ["50代・パート勤務（架空）", "施術中も強さを確認してもらえたので、無理なく受けられました。"]].map(([person, voice]) => <SalonCard key={person}><p className="font-bold text-[#9A6E50]">{person}</p><p className="mt-4 leading-8">“ {voice} ”</p></SalonCard>)}</div><p className="mt-6 text-sm text-[#626862]">掲載している感想は、ポートフォリオ用に作成した架空の内容です。</p>
         </SalonSection>
 
         <SalonFaq />
@@ -128,6 +146,7 @@ export default function RelaxationSalonPage() {
         <ReservationForm />
       </main>
       <footer className="salon-footer bg-[#2F3431] px-5 py-12 text-white"><div className="mx-auto grid max-w-[1160px] gap-8 md:grid-cols-2"><div><p className="text-xl font-bold">Lumière Relaxation Salon</p><p className="mt-2 text-sm text-white/75">架空のリラクゼーションサロンWebサイト</p><p className="mt-5 text-sm leading-6">Lumière Relaxation Salonは、<br />ポートフォリオ用に企画した架空のサロンです。</p></div><nav aria-label="フッターナビゲーション" className="grid gap-2 md:justify-self-end">{[["Concept", "#concept"], ["Menu", "#menu"], ["Therapist", "#therapist"], ["FAQ", "#faq"], ["Access", "#access"], ["ご予約", "#reservation"]].map(([label, href]) => <a key={href} href={href}>{label}</a>)}<Link href="/">ポートフォリオへ戻る</Link><Link href="/works/harvest-web-studio">Harvest Web Studioを見る</Link></nav></div><div className="mx-auto mt-8 max-w-[1160px] border-t border-white/20 pt-5 text-sm"><p>制作：<Link href="/works/harvest-web-studio" className="underline">Harvest Web Studio</Link></p><p className="mt-1 text-white/75">このサイトはHarvest Web Studioのポートフォリオ用制作事例です。</p><p className="mt-5">© 2026 Lumière Relaxation Salon</p></div></footer>
+      <nav aria-label="スマートフォン用予約ショートカット" className="salon-mobile-cta fixed inset-x-2 bottom-0 z-40 mx-auto grid max-w-md grid-cols-2 gap-2 rounded-t-xl border border-b-0 border-[#D8DED8] bg-white/95 p-2 pb-[max(.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"><a href="#menu" className="salon-secondary min-h-11">メニュー</a><a href="#reservation" className="salon-button min-h-11">予約する</a></nav>
     </div>
   );
 }
@@ -135,12 +154,21 @@ export default function RelaxationSalonPage() {
 function SalonSection({ id, kicker, title, tone, children }: { id?: string; kicker: string; title: React.ReactNode; tone?: boolean; children: React.ReactNode }) {
   return <section id={id} className={`salon-section scroll-mt-16 ${tone ? "bg-[#F3EEE6]" : "bg-[#FAF8F3]"}`}><div className="salon-container"><div className="salon-section-heading"><p className="salon-kicker">{kicker}</p><h2 className="salon-heading">{title}</h2></div><div className="mt-8">{children}</div></div></section>;
 }
+function SpaceVisual({ usePhoto }: { usePhoto: boolean }) {
+  if (usePhoto) return <figure className="salon-space-visual overflow-hidden rounded-[2rem] border border-[#D8DED8] bg-white"><Image src={optionalImages.space} alt="自然光が入る静かなリラクゼーションサロンの室内" width={1600} height={1200} sizes="(min-width:1024px) 620px, 100vw" className="aspect-[4/3] h-auto w-full object-cover" /><figcaption className="p-3 text-center text-sm text-[#626862]">静かに過ごせるプライベート空間</figcaption></figure>;
+  return <div className="salon-space-visual rounded-[2rem] border border-[#D8DED8] bg-[#E6EEE8] p-6 sm:p-8" role="img" aria-label="施術ベッド、自然光、タオル、植物があるプライベートサロンのイメージ"><div className="rounded-2xl bg-white p-5 shadow-sm"><div className="h-28 rounded-xl bg-[#F3EEE6]" /><div className="mt-4 grid grid-cols-[1fr_.45fr] gap-4"><div className="h-24 rounded-xl border-4 border-white bg-[#D7E2D9] shadow-sm" /><div className="grid place-items-center rounded-full bg-[#738B78] text-sm font-bold text-white">植物</div></div><div className="mt-4 flex justify-end gap-2"><span className="h-8 w-16 rounded-lg bg-white shadow-sm" /><span className="h-8 w-16 rounded-lg bg-white shadow-sm" /></div></div><p className="mt-4 text-center text-sm text-[#626862]">静かに過ごせる一室をイメージした図</p></div>;
+}
+function TherapistVisual({ usePhoto }: { usePhoto: boolean }) {
+  if (usePhoto) return <figure className="salon-therapist-visual mx-auto max-w-sm overflow-hidden rounded-[2rem] border border-[#D8DED8] bg-white"><Image src={optionalImages.therapist} alt="サロンで施術の準備をする架空の女性セラピスト" width={900} height={1100} sizes="(min-width:1024px) 360px, 80vw" className="aspect-[4/5] h-auto w-full object-cover" /><figcaption className="p-3 text-center text-xs text-[#626862]">ポートフォリオ用の架空人物イメージ</figcaption></figure>;
+  return <div className="salon-therapist-visual mx-auto grid aspect-square w-56 place-items-center rounded-full bg-[#E6EEE8] text-5xl font-bold text-[#738B78]" aria-label="架空のセラピスト高橋美咲のイニシャル">M</div>;
+}
 function SalonCard({ children }: { children: React.ReactNode }) { return <article className="salon-card min-w-0 rounded-3xl border border-[#D8DED8] bg-white p-6 shadow-sm">{children}</article>; }
 function Info({ label, value }: { label: string; value: React.ReactNode }) { return <div className="border-b border-[#D8DED8] pb-4 last:border-0"><p className="text-sm font-bold text-[#9A6E50]">{label}</p><p className="mt-1 leading-7">{value}</p></div>; }
 
 const salonStyles = `
   .salon-container{max-width:1160px;margin-inline:auto;padding-inline:20px}
   .salon-section{padding-block:68px}
+  .salon-hero-title{font-size:clamp(2.25rem,5vw,3.5rem);max-width:10em;word-break:keep-all}
   .salon-kicker{font-size:.75rem;letter-spacing:.18em;font-weight:800;color:#9A6E50}
   .salon-heading{margin-top:12px;font-size:clamp(1.8rem,4vw,2.75rem);line-height:1.3;font-weight:800;color:#53695A}
   .salon-button,.salon-secondary{display:inline-flex;min-height:50px;align-items:center;justify-content:center;border-radius:12px;padding:12px 22px;border:1px solid #53695A;font-weight:700;white-space:nowrap;transition:background 180ms,transform 180ms}
@@ -156,12 +184,16 @@ const salonStyles = `
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.salon-root *{animation:none!important;transition:none!important}}
   @media print{
     .salon-root,.salon-root *{opacity:1!important;transform:none!important;animation:none!important;transition:none!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    .salon-root .salon-header{display:none!important}.salon-root{overflow:visible!important}
+    .salon-root .salon-header,.salon-root .salon-mobile-cta{display:none!important}.salon-root{overflow:visible!important;padding-bottom:0!important}
     .salon-root .salon-section{padding-block:42px!important}.salon-root .salon-cta{padding-block:32px!important}
     .salon-root .salon-section-heading{break-after:avoid;page-break-after:avoid}
-    .salon-root .salon-hero-visual,.salon-root .salon-card,.salon-root .salon-flow-grid>li{break-inside:avoid;page-break-inside:avoid}
+    .salon-root .salon-hero-visual,.salon-root .salon-space-visual,.salon-root .salon-therapist-visual,.salon-root .salon-card,.salon-root .salon-flow-grid>li{break-inside:avoid;page-break-inside:avoid}
     .salon-root .salon-hero-visual img{max-height:420px!important;object-fit:cover!important}
-    .salon-root .salon-card-grid,.salon-root .salon-menu-grid,.salon-root .salon-flow-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;break-inside:auto!important}
+    .salon-root .salon-card-grid,.salon-root .salon-flow-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;break-inside:auto!important}
+    .salon-root .salon-first-visit-grid{break-inside:auto!important;page-break-inside:auto!important}
+    .salon-root .salon-first-visit-grid>.salon-card{break-inside:avoid!important;page-break-inside:avoid!important;padding:16px!important}
+    .salon-root .salon-menu-grid{grid-template-columns:minmax(0,1fr)!important;break-inside:auto!important}
+    .salon-root .salon-menu-grid>.salon-card{break-inside:avoid!important;page-break-inside:avoid!important}
     .salon-root .salon-reservation-form{break-inside:auto!important}.salon-root .salon-reservation-form label,.salon-root .salon-reservation-form button{break-inside:avoid;page-break-inside:avoid}
     .salon-root .salon-footer{break-inside:avoid;page-break-inside:avoid;background:#fff!important;color:#2F3431!important;padding-block:20px!important;border-top:2px solid #53695A}
     .salon-root .salon-footer *{color:#2F3431!important;opacity:1!important}
