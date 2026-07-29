@@ -18,6 +18,46 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.home-sales {
+  line-break: strict;
+  word-break: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-sales *,
+  .home-sales *::before,
+  .home-sales *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .home-sales,
+  .home-sales * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .home-mobile-cta {
+    display: none !important;
+  }
+
+  .home-section-heading {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .home-card,
+  .home-hero-visual,
+  .home-cta {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
 /* The portfolio chrome is replaced by this work's dedicated landing-page chrome. */
 body:has(.hws-root) > nav,
 body:has(.hws-root) > footer,
