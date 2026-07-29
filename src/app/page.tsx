@@ -54,7 +54,7 @@ const projects = [
   },
   {
     id: 5,
-    thumbnail: "/works/travel-simulator.svg",
+    thumbnail: "/works/travel-simulator.webp",
     status: "公開中",
     title: "トラベル・プランナー＋",
     description:
@@ -75,7 +75,7 @@ const projects = [
   },
   {
     id: 6,
-    thumbnail: "/works/harvest-web-studio.svg",
+    thumbnail: "/works/harvest-web-studio.webp",
     status: "公開中",
     title: "Harvest Web Studio",
     description:

@@ -34,6 +34,34 @@ function sanitizeFilename(value: string) {
     .replace(/_+/g, "_");
 }
 
+type DateGroup<T> = {
+  date: string;
+  items: T[];
+};
+
+function groupItemsByDate<T>(
+  items: readonly T[],
+  getDate: (item: T) => string,
+): DateGroup<T>[] {
+  const groups = new Map<string, T[]>();
+
+  for (const item of items) {
+    const date = getDate(item);
+    const groupedItems = groups.get(date);
+
+    if (groupedItems) {
+      groupedItems.push(item);
+    } else {
+      groups.set(date, [item]);
+    }
+  }
+
+  return Array.from(groups, ([date, groupedItems]) => ({
+    date,
+    items: groupedItems,
+  }));
+}
+
 export function createTravelPlanJson(plan: TravelPlan) {
   const saveFile: TravelPlanSaveFile = {
     format: "TravelSimulator",
@@ -119,6 +147,61 @@ export function createTravelPlanCsv(plan: TravelPlan) {
 export function createTravelPlanText(plan: TravelPlan) {
   const expenseSummary = calculateExpenseSummary(plan.expenses);
   const tripDays = calculateTripDays(plan.basicInfo);
+  const sortedSchedules = plan.schedules
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      if (!a.item.date || !b.item.date) {
+        if (a.item.date !== b.item.date) {
+          return a.item.date ? -1 : 1;
+        }
+      }
+
+      return (
+        a.item.date.localeCompare(b.item.date) ||
+        a.item.startTime.localeCompare(b.item.startTime) ||
+        a.index - b.index
+      );
+    })
+    .map(({ item }) => item);
+  const sortedExpenses = plan.expenses
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      if (!a.item.paymentDate || !b.item.paymentDate) {
+        if (a.item.paymentDate !== b.item.paymentDate) {
+          return a.item.paymentDate ? -1 : 1;
+        }
+      }
+
+      return (
+        a.item.paymentDate.localeCompare(b.item.paymentDate) ||
+        a.index - b.index
+      );
+    })
+    .map(({ item }) => item);
+  const scheduleLines = groupItemsByDate(
+    sortedSchedules,
+    (item) => item.date,
+  ).flatMap(({ date, items }) => [
+    date || "日付未設定",
+    ...items.map(
+      (item) =>
+        `${item.startTime || "--:--"}-${item.endTime || "--:--"} ${
+          item.place || "場所未設定"
+        }：${item.activity || "予定未入力"}（${item.durationMinutes}分）`,
+    ),
+  ]);
+  const expenseLines = groupItemsByDate(
+    sortedExpenses,
+    (item) => item.paymentDate,
+  ).flatMap(({ date, items }) => [
+    date || "支払日未設定",
+    ...items.map(
+      (item) =>
+        `${item.name || "未入力"}：${formatYen(
+          item.amount,
+        )}（${expenseCategoryLabels[item.category]}）`,
+    ),
+  ]);
 
   const lines = [
     `旅行タイトル：${plan.basicInfo.title || "未設定"}`,
@@ -130,24 +213,10 @@ export function createTravelPlanText(plan: TravelPlan) {
     plan.basicInfo.memo ? `メモ：${plan.basicInfo.memo}` : null,
     "",
     "【詳細日程】",
-    ...plan.schedules.map(
-      (item) =>
-        `${item.date || "日付未設定"} ${item.startTime || "--:--"}-${
-          item.endTime || "--:--"
-        } ${item.place || "場所未設定"}：${
-          item.activity || "予定未入力"
-        }（${item.durationMinutes}分）`,
-    ),
+    ...scheduleLines,
     "",
     "【費用】",
-    ...plan.expenses.map(
-      (item) =>
-        `${item.paymentDate || "支払日未設定"} ${
-          item.name || "未入力"
-        }：${formatYen(
-          item.amount,
-        )}（${expenseCategoryLabels[item.category]}）`,
-    ),
+    ...expenseLines,
     "",
     "【VLOG撮影メモ】",
     `VLOGタイトル：${plan.vlogTitle || "未設定"}`,
