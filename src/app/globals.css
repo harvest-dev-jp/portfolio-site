@@ -45,16 +45,171 @@ body {
     display: none !important;
   }
 
+  body:has(.home-sales) > nav {
+    display: none !important;
+  }
+
+  body:has(.home-sales) > main {
+    padding-top: 0 !important;
+  }
+
+  .home-sales {
+    overflow: visible !important;
+  }
+
+  .home-sales *,
+  .home-sales *::before,
+  .home-sales *::after {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
+
+  .home-sales section {
+    padding-block: 32px !important;
+  }
+
+  .home-hero > div {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .home-hero-visual {
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 560px;
+  }
+
+  .home-hero-visual figure:not(:first-child) {
+    display: none !important;
+  }
+
   .home-section-heading {
     break-after: avoid;
     page-break-after: avoid;
   }
 
   .home-card,
+  .home-trust-item,
   .home-hero-visual,
-  .home-cta {
+  .home-cta,
+  .home-faq-item {
     break-inside: avoid;
     page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  #works {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .home-work-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .home-pricing-grid {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .home-approach-grid,
+  .home-flow-grid,
+  .home-pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .home-approach-grid > *,
+  .home-flow-grid > *,
+  .home-pricing-grid > * {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .home-flow-note,
+  .home-pricing-note,
+  .home-profile-visual,
+  .home-profile-group {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .home-profile-cta {
+    break-before: avoid;
+    page-break-before: avoid;
+  }
+
+  .home-faq-answer[hidden] {
+    display: block !important;
+  }
+
+  .home-faq-icon {
+    display: none !important;
+  }
+
+  .home-faq-item button {
+    background: transparent !important;
+  }
+
+  .home-button-primary {
+    border-color: #4f3a2c !important;
+    background: #4f3a2c !important;
+    color: #fff !important;
+  }
+
+  .home-cta h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+    font-size: 1.75rem !important;
+  }
+
+  .home-cta {
+    padding-block: 28px !important;
+  }
+
+  .home-cta-final {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .home-card img,
+  .home-hero-visual img,
+  .home-profile-card img {
+    display: block !important;
+    max-width: 100% !important;
+    visibility: visible !important;
+  }
+
+  body:has(.home-sales) > .portfolio-footer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding-block: 14px !important;
+    color: #3f342d !important;
+  }
+
+  body:has(.home-sales) > .portfolio-footer .portfolio-footer-inner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    max-width: 100% !important;
+    padding-inline: 20px !important;
+  }
+
+  body:has(.home-sales) > .portfolio-footer .portfolio-footer-description {
+    max-width: none !important;
+  }
+
+  body:has(.home-sales) > .portfolio-footer .portfolio-footer-nav {
+    max-width: none !important;
+    justify-content: flex-start !important;
+    gap: 6px 16px !important;
+  }
+
+  body:has(.home-sales) > .portfolio-footer * {
+    color: #3f342d !important;
   }
 }
 

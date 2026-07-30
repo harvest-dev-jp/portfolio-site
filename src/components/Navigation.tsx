@@ -24,7 +24,7 @@ export default function Navigation() {
   const links = [
     ["Home", "/"],
     ["Services", "/#services"],
-    ["Works", "/works"],
+    ["Works", "/#works"],
     ["About", "/about"],
     ["Contact", "/contact"],
   ] as const;

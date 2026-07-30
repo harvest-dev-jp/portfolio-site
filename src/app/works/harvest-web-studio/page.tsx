@@ -58,7 +58,7 @@ export default function HarvestWebStudioPage() {
       <Cta title={<>Webサイトについて、<br />まずは話すところから始めませんか？</>} body="制作内容や予算が決まっていなくても問題ありません。今のお悩みや、作りたいWebサイトのイメージをお聞かせください。" note="初回相談無料・相談だけでもOK・強引な営業なし・全国オンライン対応" />
       <ContactSection />
     </main>
-    <footer className="hws-footer bg-[#2F5145] px-5 py-12 text-white"><div className="mx-auto grid max-w-[1180px] gap-8 md:grid-cols-2"><div><p className="text-xl font-bold">Harvest Web Studio</p><p className="mt-2 text-sm text-white/80">個人事業主・小規模事業者向けの架空Webサイト制作サービスLP</p><p className="mt-5 text-sm">Harvest Web Studioは、<br />ポートフォリオ用に企画した架空のサービスです。</p></div><nav aria-label="フッターナビゲーション" className="grid gap-3 md:justify-self-end"><Link href="/">ポートフォリオへ戻る</Link><Link href="/about">制作者について</Link><Link href="/works">その他の制作実績</Link><span className="text-sm text-white/70">プライバシーポリシー：デモのため未設置</span></nav></div><p className="mx-auto mt-10 max-w-[1180px] border-t border-white/20 pt-5 text-sm">© 2026 Harvest Web Studio</p></footer>
+    <footer className="hws-footer bg-[#2F5145] px-5 py-12 text-white"><div className="mx-auto grid max-w-[1180px] gap-8 md:grid-cols-2"><div><p className="text-xl font-bold">Harvest Web Studio</p><p className="mt-2 text-sm text-white/80">個人事業主・小規模事業者向けの架空Webサイト制作サービスLP</p><p className="mt-5 text-sm">Harvest Web Studioは、<br />ポートフォリオ用に企画した架空のサービスです。</p></div><nav aria-label="フッターナビゲーション" className="grid gap-3 md:justify-self-end"><Link href="/">ポートフォリオへ戻る</Link><Link href="/about">制作者について</Link><Link href="/#works">その他の制作実績</Link><span className="text-sm text-white/70">プライバシーポリシー：デモのため未設置</span></nav></div><p className="mx-auto mt-10 max-w-[1180px] border-t border-white/20 pt-5 text-sm">© 2026 Harvest Web Studio</p></footer>
   </div>;
 }
 
