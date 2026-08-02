@@ -192,33 +192,15 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="home-hero-visual grid min-w-0 grid-cols-2 gap-3">
-            <figure className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-2xl border border-harvest-200 bg-white shadow-sm">
+          <div className="home-hero-visual min-w-0">
+            <figure className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-harvest-200 bg-harvest-100 shadow-md">
               <Image
-                src="/works/harvest-web-studio.webp"
-                alt="Harvest Web Studioの制作事例画面"
+                src="/images/home/harvest-hero-consultation.webp"
+                alt="観葉植物のある明るい空間で、Webサイト制作について相談する様子"
                 fill
                 priority
                 sizes="(min-width: 1024px) 520px, calc(100vw - 48px)"
-                className="object-cover object-top"
-              />
-            </figure>
-            <figure className="relative aspect-[4/3] overflow-hidden rounded-xl border border-harvest-200 bg-white">
-              <Image
-                src="/images/harvest-web-studio/work-salon.webp"
-                alt="Lumière Relaxation Salonの制作事例イメージ"
-                fill
-                sizes="(min-width: 1024px) 250px, calc((100vw - 60px) / 2)"
-                className="object-cover"
-              />
-            </figure>
-            <figure className="relative aspect-[4/3] overflow-hidden rounded-xl border border-harvest-200 bg-white">
-              <Image
-                src="/images/harvest-web-studio/work-legal-office.webp"
-                alt="あおば行政書士事務所の制作事例イメージ"
-                fill
-                sizes="(min-width: 1024px) 250px, calc((100vw - 60px) / 2)"
-                className="object-cover"
+                className="object-cover object-center"
               />
             </figure>
           </div>

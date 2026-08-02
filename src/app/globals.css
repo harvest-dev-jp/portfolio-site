@@ -76,12 +76,7 @@ body {
   }
 
   .home-hero-visual {
-    grid-template-columns: minmax(0, 1fr) !important;
     max-width: 560px;
-  }
-
-  .home-hero-visual figure:not(:first-child) {
-    display: none !important;
   }
 
   .home-section-heading {
