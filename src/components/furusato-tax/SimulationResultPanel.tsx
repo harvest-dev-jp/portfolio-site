@@ -265,6 +265,7 @@ export default function SimulationResultPanel({
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
           基本条件を基準として、各控除を反映した場合の概算上限額を比較します。
+          参考値であり、実際の住民税通知書の寄附金税額控除額を上限額そのものとして扱いません。
         </p>
 
         <div className="mt-4 overflow-x-auto">

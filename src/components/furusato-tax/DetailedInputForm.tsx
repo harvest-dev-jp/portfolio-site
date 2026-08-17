@@ -133,7 +133,10 @@ export default function DetailedInputForm({
           </h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            iDeCoあり・なしの比較や、計算内訳の表示に使用します。
+            源泉徴収票の所得控除合計は所得税用であり、
+            住民税は内部で再計算して利用します。
+            iDeCoの内訳は比較用として保持し、
+            本計算では二重控除しません。
           </p>
         </div>
 

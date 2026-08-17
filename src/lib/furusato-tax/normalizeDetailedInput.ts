@@ -39,15 +39,13 @@ export function normalizeDetailedInput(
     );
 
   /**
-   * 源泉徴収票の「所得控除の額の合計額」には、
-   * 社会保険料控除、基礎控除、配偶者控除などが
-   * 原則として含まれている。
+   * 源泉徴収票の「所得控除の額の合計額」は
+   * 所得税計算用の控除合計であり、
+   * 住民税計算にそのまま流用してはいけない。
    *
-   * ただし、NormalizedTaxInputは控除を項目別に持つため、
-   * 詳細入力では合計額を otherIncomeDeduction に集約する。
-   *
-   * 年末調整後に追加する医療費控除などは、
-   * 別項目として加算する。
+   * そのため、詳細入力では
+   * "所得税計算の総額" と
+   * "住民税計算の再計算用内訳" を分離する。
    */
   const totalIncomeDeduction =
     normalizeNonNegativeInteger(
@@ -65,43 +63,80 @@ export function normalizeDetailedInput(
     );
 
   /**
-   * 源泉徴収票の社会保険料等の金額には、
-   * iDeCo掛金が含まれている場合がある。
+   * 社会保険料等の金額にiDeCoが含まれている場合は、
+   * 本計算では再度控除しない。
    *
-   * 控除合計を二重計上しないため、
-   * 詳細入力では社会保険料・iDeCoの個別項目を
-   * NormalizedTaxInputへ重ねて加算しない。
-   *
-   * 内訳としての表示精度は、後続工程で改善する。
+   * iDeCoは比較用の説明としてのみ保持する。
    */
   const includedIdecoContribution =
     normalizeNonNegativeInteger(
       input.includedIdecoContribution,
     );
 
-  void includedIdecoContribution;
+  const incomeTaxBasicDeduction =
+    normalizeNonNegativeInteger(
+      input.basicDeduction,
+    );
 
-const incomeTaxBasicDeduction =
-  normalizeNonNegativeInteger(
-    input.basicDeduction,
-  );
+  const residentTaxBasicDeduction =
+    salaryIncomeAmount <= 24_000_000
+      ? 430_000
+      : salaryIncomeAmount <= 24_500_000
+        ? 290_000
+        : salaryIncomeAmount <= 25_000_000
+          ? 150_000
+          : 0;
 
-const residentTaxBasicDeduction =
-  salaryIncomeAmount <= 24_000_000
-    ? 430_000
-    : salaryIncomeAmount <= 24_500_000
-      ? 290_000
-      : salaryIncomeAmount <= 25_000_000
-        ? 150_000
-        : 0;
+  const residentSocialInsuranceDeduction =
+    Math.max(
+      0,
+      normalizeNonNegativeInteger(
+        input.socialInsuranceAndSmallBusinessPremium,
+      ) -
+        includedIdecoContribution,
+    );
 
-const residentOtherDeduction =
-  Math.max(
-    0,
-    totalIncomeDeduction -
-      incomeTaxBasicDeduction -
-      includedIdecoContribution,
-  );
+  const spouseDeduction =
+    normalizeNonNegativeInteger(
+      input.spouseDeduction,
+    );
+
+  const lifeInsuranceDeduction =
+    normalizeNonNegativeInteger(
+      input.lifeInsuranceDeduction,
+    );
+
+  const earthquakeInsuranceDeduction =
+    normalizeNonNegativeInteger(
+      input.earthquakeInsuranceDeduction,
+    );
+
+  const taxResidualDeduction =
+    Math.max(
+      0,
+      totalIncomeDeduction -
+        incomeTaxBasicDeduction -
+        includedIdecoContribution,
+    );
+
+  const residentTaxOtherDeduction =
+    Math.max(
+      0,
+      additionalIncomeDeduction,
+    );
+
+  const residentTaxDeductionTotal =
+    residentTaxBasicDeduction +
+    residentSocialInsuranceDeduction +
+    spouseDeduction +
+    lifeInsuranceDeduction +
+    earthquakeInsuranceDeduction +
+    additionalMedicalExpenseDeduction +
+    residentTaxOtherDeduction;
+
+  const incomeTaxOtherDeduction =
+    taxResidualDeduction +
+    additionalIncomeDeduction;
 
   return {
     taxYear: input.taxYear,
@@ -112,18 +147,18 @@ const residentOtherDeduction =
     salaryIncomeAmount,
 
     /**
-     * 詳細入力では所得控除合計を一括利用するため、
-     * 個別項目は0円とする。
+     * 詳細入力の本計算では、
+     * 源泉徴収票の控除合計をそのまま住民税用控除へ流用しない。
+     * 所得税計算では、残りの控除を総額として扱う。
      */
-    basicDeduction: 0,
+    basicDeduction: incomeTaxBasicDeduction,
     socialInsuranceDeduction: 0,
-    idecoDeduction:
-      includedIdecoContribution,
-    spouseDeduction: 0,
+    idecoDeduction: 0,
+    spouseDeduction,
     dependentDeduction: 0,
     disabilityDeduction: 0,
-    lifeInsuranceDeduction: 0,
-    earthquakeInsuranceDeduction: 0,
+    lifeInsuranceDeduction,
+    earthquakeInsuranceDeduction,
 
     /**
      * 年末調整後に追加する医療費控除。
@@ -131,21 +166,8 @@ const residentOtherDeduction =
     medicalExpenseDeduction:
       additionalMedicalExpenseDeduction,
 
-
-    /**
-     * 源泉徴収票の所得控除合計からiDeCo分を分離する。
-     *
-     * iDeCo分はidecoDeductionへ格納するため、
-     * otherIncomeDeductionから差し引いて二重計上を防ぐ。
-     */
     otherIncomeDeduction:
-        Math.max(
-            0,
-            totalIncomeDeduction -
-            includedIdecoContribution,
-        ) +
-        additionalIncomeDeduction,
-
+      incomeTaxOtherDeduction,
 
     // 税額控除
     housingLoanTaxCredit:
@@ -159,7 +181,7 @@ const residentOtherDeduction =
       ),
 
     specialDependentDeduction: 0,
-    
+
     // 寄附条件
     plannedDonation:
       normalizeNonNegativeInteger(
@@ -173,39 +195,22 @@ const residentOtherDeduction =
       input.safetyRate,
 
     residentTaxIncomeDeductionTotal:
-    Math.max(
-      0,
-      totalIncomeDeduction -
-        normalizeNonNegativeInteger(
-          input.basicDeduction,
-        ) +
-        430_000,
-    ) +
-    additionalMedicalExpenseDeduction +
-    additionalIncomeDeduction,
+      residentTaxDeductionTotal,
 
     residentTaxDeductions: {
       basic: residentTaxBasicDeduction,
-      socialInsurance: 0,
-      ideco: includedIdecoContribution,
-      spouse: 0,
+      socialInsurance: residentSocialInsuranceDeduction,
+      ideco: 0,
+      spouse: spouseDeduction,
       dependent: 0,
       disability: 0,
-      lifeInsurance: 0,
-      earthquakeInsurance: 0,
+      lifeInsurance: lifeInsuranceDeduction,
+      earthquakeInsurance: earthquakeInsuranceDeduction,
       specialDependent: 0,
       medicalExpense:
         additionalMedicalExpenseDeduction,
-      other:
-        residentOtherDeduction +
-        additionalIncomeDeduction,
-      total:
-        residentTaxBasicDeduction +
-        includedIdecoContribution +
-        residentOtherDeduction +
-        additionalMedicalExpenseDeduction +
-        additionalIncomeDeduction,
+      other: residentTaxOtherDeduction,
+      total: residentTaxDeductionTotal,
     },
-
   };
 }

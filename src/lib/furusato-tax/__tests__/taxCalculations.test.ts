@@ -7,12 +7,16 @@ import {
 } from "vitest";
 
 import { calculateBasicDeduction } from "../calculateBasicDeduction";
+import { calculateDonationLimit } from "../calculateDonationLimit";
 import { calculateIncomeDeductions } from "../calculateIncomeDeductions";
 import { calculateIncomeTax } from "../calculateIncomeTax";
 import { calculateResidentTax } from "../calculateResidentTax";
 import { calculateSalaryIncome } from "../calculateSalaryIncome";
+import { normalizeDetailedInput } from "../normalizeDetailedInput";
+import { simulateDetailedFurusatoTax } from "../simulateFurusatoTax";
 
 import type {
+  DetailedInput,
   NormalizedTaxInput,
 } from "../types";
 
@@ -95,6 +99,235 @@ function createNormalizedInput(
     ...updates,
   };
 }
+
+const residentTaxFixture2025: DetailedInput = {
+  taxYear: 2026,
+  paymentAmount: 6_243_900,
+  salaryIncomeAfterDeduction: 4_552_000,
+  totalIncomeDeduction: 2_254_987,
+  withholdingTaxAmount: 0,
+  socialInsuranceAndSmallBusinessPremium: 1_168_510,
+  includedIdecoContribution: 276_000,
+  lifeInsuranceDeduction: 26_477,
+  earthquakeInsuranceDeduction: 0,
+  spouseDeduction: 380_000,
+  basicDeduction: 0,
+  incomeAdjustmentDeduction: 0,
+  housingLoanTaxCredit: 132_200,
+  additionalMedicalExpenseDeduction: 0,
+  additionalIncomeDeduction: 0,
+  additionalTaxCredit: 0,
+  plannedDonation: 0,
+  filingMethod: "one-stop",
+  safetyRate: 0.95,
+};
+
+describe(
+  "詳細入力の控除整理",
+  () => {
+    it(
+      "所得税用所得控除合計を住民税用所得控除として直接使わない",
+      () => {
+        const normalized =
+          normalizeDetailedInput(
+            residentTaxFixture2025,
+          );
+
+        expect(
+          normalized.idecoDeduction,
+        ).toBe(0);
+
+        expect(
+          normalized.residentTaxDeductions.ideco,
+        ).toBe(0);
+
+        expect(
+          normalized.residentTaxDeductions.total,
+        ).not.toBe(
+          residentTaxFixture2025.totalIncomeDeduction,
+        );
+
+        expect(
+          normalized.residentTaxDeductions.total,
+        ).toBeLessThan(
+          residentTaxFixture2025.totalIncomeDeduction,
+        );
+      },
+    );
+
+    it(
+      "iDeCoを社会保険料等の金額から除いて二重控除しない",
+      () => {
+        const normalized =
+          normalizeDetailedInput(
+            residentTaxFixture2025,
+          );
+
+        const socialInsuranceDeduction =
+          Math.max(
+            0,
+            residentTaxFixture2025.socialInsuranceAndSmallBusinessPremium -
+              residentTaxFixture2025.includedIdecoContribution,
+          );
+
+        expect(
+          normalized.residentTaxDeductions.socialInsurance,
+        ).toBe(socialInsuranceDeduction);
+
+        expect(
+          normalized.residentTaxDeductions.ideco,
+        ).toBe(0);
+      },
+    );
+
+    it(
+      "2025年実績の住民税課税所得は同程度の水準に収まる",
+      () => {
+        const normalized =
+          normalizeDetailedInput(
+            residentTaxFixture2025,
+          );
+
+        const incomeDeductions =
+          calculateIncomeDeductions(
+            normalized,
+          );
+
+        const incomeTax =
+          calculateIncomeTax(
+            normalized,
+            incomeDeductions,
+          );
+
+        const residentTax =
+          calculateResidentTax(
+            normalized,
+            incomeDeductions,
+            incomeTax,
+          );
+
+        // 2025年通知書の実績値は、2026年ルールと入力の粒度差があるため
+        // 厳密一致ではなく「おおむね2.8M〜3.0M」の水準を確認する。
+        expect(
+          residentTax.taxableIncome,
+        ).toBeGreaterThan(2_800_000);
+
+        expect(
+          residentTax.taxableIncome,
+        ).toBeLessThan(3_000_000);
+      },
+    );
+
+    it(
+      "市民税・県民税の税額控除前所得割額は実績値の近辺に収まる",
+      () => {
+        const normalized =
+          normalizeDetailedInput(
+            residentTaxFixture2025,
+          );
+
+        const incomeDeductions =
+          calculateIncomeDeductions(
+            normalized,
+          );
+
+        const incomeTax =
+          calculateIncomeTax(
+            normalized,
+            incomeDeductions,
+          );
+
+        const residentTax =
+          calculateResidentTax(
+            normalized,
+            incomeDeductions,
+            incomeTax,
+          );
+
+        expect(
+          residentTax.incomeBasedTaxBeforeCredits,
+        ).toBeGreaterThan(220_000);
+
+        expect(
+          residentTax.incomeBasedTaxBeforeCredits,
+        ).toBeLessThan(360_000);
+      },
+    );
+
+    it(
+      "寄附金特例控除の20%上限は最終所得割額を基準にする",
+      () => {
+        const normalized =
+          normalizeDetailedInput(
+            residentTaxFixture2025,
+          );
+
+        const incomeDeductions =
+          calculateIncomeDeductions(
+            normalized,
+          );
+
+        const incomeTax =
+          calculateIncomeTax(
+            normalized,
+            incomeDeductions,
+          );
+
+        const residentTax =
+          calculateResidentTax(
+            normalized,
+            incomeDeductions,
+            incomeTax,
+          );
+
+        const donation =
+          calculateDonationLimit(
+            normalized,
+            incomeTax,
+            residentTax,
+          );
+
+        const specialDeductionLimit =
+          Math.floor(
+            residentTax.incomeBasedTaxAfterCredits *
+              0.2,
+          );
+
+        expect(
+          donation.deductionBreakdown
+            .residentTaxSpecialDeduction,
+        ).toBeLessThanOrEqual(
+          specialDeductionLimit,
+        );
+      },
+    );
+
+    it(
+      "詳細入力の本計算と比較用計算は独立している",
+      () => {
+        const result =
+          simulateDetailedFurusatoTax(
+            residentTaxFixture2025,
+          );
+
+        expect(
+          result.comparison.items,
+        ).toHaveLength(4);
+
+        expect(
+          result.comparison.items.map(
+            (item) => item.scenario,
+          ),
+        ).toEqual([
+          "basic",
+          "with-ideco",
+          "with-housing-credit",
+          "with-all",
+        ]);
+      },
+    );
+  },
+);
 
 describe(
   "calculateSalaryIncome",
